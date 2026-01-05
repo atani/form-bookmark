@@ -236,5 +236,23 @@
   "errorExport": {
     "message": "Export failed",
     "description": "Error when export fails"
+  },
+  "errorStorageFull": {
+    "message": "Storage limit reached. Please delete some bookmarks.",
+    "description": "Error when sync storage is full"
+  },
+  "storageUsage": {
+    "message": "Usage: $USED$ / $TOTAL$",
+    "description": "Storage usage display",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "50KB"
+      },
+      "total": {
+        "content": "$2",
+        "example": "100KB"
+      }
+    }
   }
 }

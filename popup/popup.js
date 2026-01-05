@@ -150,6 +150,52 @@
     });
   }
 
+  // Storage constants
+  const STORAGE_QUOTA = 102400; // 100KB in bytes
+  const STORAGE_WARNING_THRESHOLD = 0.9; // 90%
+
+  /**
+   * Get current storage usage
+   */
+  async function getStorageUsage() {
+    return new Promise(resolve => {
+      chrome.storage.sync.getBytesInUse(null, bytesInUse => {
+        resolve(bytesInUse);
+      });
+    });
+  }
+
+  /**
+   * Format bytes to human readable string
+   */
+  function formatBytes(bytes) {
+    if (bytes < 1024) return `${bytes}B`;
+    return `${(bytes / 1024).toFixed(1)}KB`;
+  }
+
+  /**
+   * Check if storage has enough space for new data
+   * @param {number} additionalBytes - Estimated additional bytes needed
+   * @returns {Promise<{canSave: boolean, usage: number, quota: number}>}
+   */
+  async function checkStorageCapacity(additionalBytes = 0) {
+    const usage = await getStorageUsage();
+    const projectedUsage = usage + additionalBytes;
+    return {
+      canSave: projectedUsage < STORAGE_QUOTA,
+      usage,
+      quota: STORAGE_QUOTA,
+      percentage: (usage / STORAGE_QUOTA) * 100
+    };
+  }
+
+  /**
+   * Estimate size of data in bytes
+   */
+  function estimateSize(data) {
+    return new Blob([JSON.stringify(data)]).size;
+  }
+
   /**
    * Get bookmarks for current URL
    */
@@ -443,11 +489,27 @@
         updatedAt: Date.now()
       };
 
+      // Check storage capacity before saving
+      const newBookmarkSize = estimateSize(newBookmark);
+      const capacity = await checkStorageCapacity(newBookmarkSize);
+
+      if (!capacity.canSave) {
+        showToast(i18n.get('errorStorageFull'), 'error');
+        return;
+      }
+
       bookmarks.push(newBookmark);
       await saveData();
       renderBookmarks();
       closeSaveDialog();
       showToast(i18n.get('toastSaved', name), 'success');
+
+      // Show warning if storage is getting full
+      if (capacity.percentage > STORAGE_WARNING_THRESHOLD * 100) {
+        setTimeout(() => {
+          showToast(i18n.get('storageUsage', formatBytes(capacity.usage), formatBytes(capacity.quota)), 'warning');
+        }, 3500);
+      }
     } catch (error) {
       console.error('Save error:', error);
       showToast(i18n.get('errorSave'), 'error');
@@ -487,6 +549,15 @@
       urlPattern: normalizeUrl(currentUrl),
       createdAt: Date.now()
     };
+
+    // Check storage capacity
+    const newFolderSize = estimateSize(newFolder);
+    const capacity = await checkStorageCapacity(newFolderSize);
+
+    if (!capacity.canSave) {
+      showToast(i18n.get('errorStorageFull'), 'error');
+      return;
+    }
 
     folders.push(newFolder);
     await saveData();
@@ -656,14 +727,25 @@
         // Merge bookmarks (avoid duplicates by ID)
         const existingIds = new Set(bookmarks.map(b => b.id));
         const newBookmarks = data.bookmarks.filter(b => !existingIds.has(b.id));
-        bookmarks.push(...newBookmarks);
 
         // Merge folders if present
+        let newFolders = [];
         if (data.folders && Array.isArray(data.folders)) {
           const existingFolderIds = new Set(folders.map(f => f.id));
-          const newFolders = data.folders.filter(f => !existingFolderIds.has(f.id));
-          folders.push(...newFolders);
+          newFolders = data.folders.filter(f => !existingFolderIds.has(f.id));
         }
+
+        // Check storage capacity before import
+        const importSize = estimateSize([...newBookmarks, ...newFolders]);
+        const capacity = await checkStorageCapacity(importSize);
+
+        if (!capacity.canSave) {
+          showToast(i18n.get('errorStorageFull'), 'error');
+          return;
+        }
+
+        bookmarks.push(...newBookmarks);
+        folders.push(...newFolders);
 
         await saveData();
         renderBookmarks();

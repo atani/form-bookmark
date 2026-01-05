@@ -236,5 +236,23 @@
   "errorExport": {
     "message": "エクスポートに失敗しました",
     "description": "Error when export fails"
+  },
+  "errorStorageFull": {
+    "message": "ストレージ容量が上限に達しました。不要なブックマークを削除してください。",
+    "description": "Error when sync storage is full"
+  },
+  "storageUsage": {
+    "message": "使用量: $USED$ / $TOTAL$",
+    "description": "Storage usage display",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "50KB"
+      },
+      "total": {
+        "content": "$2",
+        "example": "100KB"
+      }
+    }
   }
 }
