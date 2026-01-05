@@ -1,0 +1,252 @@
+{
+  "extensionName": {
+    "message": "Form Bookmark",
+    "description": "Extension name"
+  },
+  "extensionDescription": {
+    "message": "Save and restore form inputs for testing purposes",
+    "description": "Extension description"
+  },
+  "headerTitle": {
+    "message": "📑 Form Bookmark",
+    "description": "Header title in popup"
+  },
+  "saveCurrentForm": {
+    "message": "💾 Save Current Form",
+    "description": "Save button text"
+  },
+  "savedBookmarks": {
+    "message": "Saved Bookmarks",
+    "description": "Section title for bookmarks list"
+  },
+  "noBookmarks": {
+    "message": "No bookmarks for this URL",
+    "description": "Empty state message"
+  },
+  "saveBookmarkTitle": {
+    "message": "Save Bookmark",
+    "description": "Save dialog title"
+  },
+  "editBookmarkTitle": {
+    "message": "Edit Bookmark",
+    "description": "Edit dialog title"
+  },
+  "deleteConfirmTitle": {
+    "message": "Confirm Delete",
+    "description": "Delete dialog title"
+  },
+  "bookmarkNamePlaceholder": {
+    "message": "Enter bookmark name",
+    "description": "Placeholder for bookmark name input"
+  },
+  "deleteConfirmMessage": {
+    "message": "Delete \"$NAME$\"?",
+    "description": "Delete confirmation message",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Test User A"
+      }
+    }
+  },
+  "cancel": {
+    "message": "Cancel",
+    "description": "Cancel button"
+  },
+  "save": {
+    "message": "Save",
+    "description": "Save button"
+  },
+  "update": {
+    "message": "Update",
+    "description": "Update button"
+  },
+  "delete": {
+    "message": "Delete",
+    "description": "Delete button"
+  },
+  "restore": {
+    "message": "Restore",
+    "description": "Restore button tooltip"
+  },
+  "edit": {
+    "message": "Edit",
+    "description": "Edit button tooltip"
+  },
+  "toastSaved": {
+    "message": "Saved \"$NAME$\"",
+    "description": "Toast message after saving",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Test User A"
+      }
+    }
+  },
+  "toastRestored": {
+    "message": "Restored \"$NAME$\"",
+    "description": "Toast message after restoring",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Test User A"
+      }
+    }
+  },
+  "toastRestoredPartial": {
+    "message": "Restored ($SUCCESS$ succeeded, $FAILED$ failed)",
+    "description": "Toast message when some fields failed to restore",
+    "placeholders": {
+      "success": {
+        "content": "$1",
+        "example": "5"
+      },
+      "failed": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "toastUpdated": {
+    "message": "Updated",
+    "description": "Toast message after updating"
+  },
+  "toastDeleted": {
+    "message": "Deleted \"$NAME$\"",
+    "description": "Toast message after deleting",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Test User A"
+      }
+    }
+  },
+  "errorEnterName": {
+    "message": "Please enter a bookmark name",
+    "description": "Error when name is empty"
+  },
+  "errorGetForm": {
+    "message": "Failed to get form fields",
+    "description": "Error when getting form fields failed"
+  },
+  "errorNoFields": {
+    "message": "No form fields to save",
+    "description": "Warning when no fields to save"
+  },
+  "errorSave": {
+    "message": "Failed to save",
+    "description": "Error when save failed"
+  },
+  "errorRestore": {
+    "message": "Failed to restore",
+    "description": "Error when restore failed"
+  },
+  "promptOnSubmit": {
+    "message": "Prompt to save on form submit",
+    "description": "Setting to prompt save on form submit"
+  },
+  "includePasswords": {
+    "message": "Include passwords (for testing)",
+    "description": "Setting to include password fields"
+  },
+  "submitPromptMessage": {
+    "message": "Form submitted. Save the input values?",
+    "description": "Prompt message shown after form submit"
+  },
+  "submitPromptSave": {
+    "message": "Save",
+    "description": "Save button in submit prompt"
+  },
+  "submitPromptSkip": {
+    "message": "Skip",
+    "description": "Skip button in submit prompt"
+  },
+  "newFolder": {
+    "message": "New Folder",
+    "description": "New folder button tooltip"
+  },
+  "newFolderTitle": {
+    "message": "Create Folder",
+    "description": "New folder dialog title"
+  },
+  "folderNamePlaceholder": {
+    "message": "Enter folder name",
+    "description": "Placeholder for folder name input"
+  },
+  "create": {
+    "message": "Create",
+    "description": "Create button"
+  },
+  "saveToFolder": {
+    "message": "Save to folder",
+    "description": "Label for folder selection"
+  },
+  "rootFolder": {
+    "message": "(Root)",
+    "description": "Root folder option"
+  },
+  "toastFolderCreated": {
+    "message": "Created folder \"$NAME$\"",
+    "description": "Toast message after creating folder",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Test Folder"
+      }
+    }
+  },
+  "toastFolderDeleted": {
+    "message": "Deleted folder \"$NAME$\"",
+    "description": "Toast message after deleting folder",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Test Folder"
+      }
+    }
+  },
+  "deleteFolderConfirm": {
+    "message": "Delete folder \"$NAME$\"? Bookmarks inside will be moved to root.",
+    "description": "Delete folder confirmation message",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Test Folder"
+      }
+    }
+  },
+  "advancedSettings": {
+    "message": "⚙️ Advanced",
+    "description": "Advanced settings toggle"
+  },
+  "export": {
+    "message": "📤 Export",
+    "description": "Export button"
+  },
+  "import": {
+    "message": "📥 Import",
+    "description": "Import button"
+  },
+  "toastExported": {
+    "message": "Data exported successfully",
+    "description": "Toast message after export"
+  },
+  "toastImported": {
+    "message": "Imported $COUNT$ bookmarks",
+    "description": "Toast message after import",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "errorImportInvalid": {
+    "message": "Invalid file format",
+    "description": "Error when import file is invalid"
+  },
+  "errorExport": {
+    "message": "Export failed",
+    "description": "Error when export fails"
+  }
+}

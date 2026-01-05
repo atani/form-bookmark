@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4A90D9"/>
+      <stop offset="100%" style="stop-color:#357ABD"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="128" height="128" rx="20" fill="url(#bg)"/>
+  <!-- Form/Document -->
+  <rect x="28" y="20" width="72" height="88" rx="6" fill="white"/>
+  <!-- Form lines -->
+  <rect x="38" y="34" width="32" height="6" rx="2" fill="#E0E0E0"/>
+  <rect x="38" y="48" width="52" height="6" rx="2" fill="#4A90D9" opacity="0.3"/>
+  <rect x="38" y="62" width="52" height="6" rx="2" fill="#E0E0E0"/>
+  <rect x="38" y="76" width="40" height="6" rx="2" fill="#4A90D9" opacity="0.3"/>
+  <!-- Bookmark ribbon -->
+  <path d="M80 20 L80 45 L88 38 L96 45 L96 20 Z" fill="#F39C12"/>
+</svg>

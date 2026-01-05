@@ -1,0 +1,515 @@
+/* Form Bookmark - Styles */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+  background: #fff;
+  width: 360px;
+  min-height: 200px;
+}
+
+.container {
+  padding: 16px;
+}
+
+/* Header */
+.header {
+  margin-bottom: 16px;
+}
+
+.header h1 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.current-url {
+  font-size: 12px;
+  color: #666;
+  background: #f5f5f5;
+  padding: 8px 12px;
+  border-radius: 6px;
+  word-break: break-all;
+  max-height: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Actions */
+.actions {
+  margin-bottom: 16px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-primary {
+  background: #4A90D9;
+  color: white;
+  width: 100%;
+}
+
+.btn-primary:hover {
+  background: #3A7BC8;
+}
+
+.btn-secondary {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.btn-secondary:hover {
+  background: #d0d0d0;
+}
+
+.btn-danger {
+  background: #E74C3C;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #C0392B;
+}
+
+.btn-small {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.btn-restore {
+  background: #27AE60;
+  color: white;
+}
+
+.btn-restore:hover {
+  background: #219A52;
+}
+
+.btn-edit {
+  background: #F39C12;
+  color: white;
+}
+
+.btn-edit:hover {
+  background: #D68910;
+}
+
+.btn-delete {
+  background: #E74C3C;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #C0392B;
+}
+
+/* Bookmarks Section */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.section-header h2 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+  margin: 0;
+}
+
+.btn-icon {
+  padding: 4px 8px;
+  font-size: 12px;
+  background: #e8e8e8;
+  color: #666;
+}
+
+.btn-icon:hover {
+  background: #ddd;
+}
+
+.bookmarks-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.empty-message {
+  text-align: center;
+  color: #999;
+  padding: 24px 16px;
+  font-size: 13px;
+}
+
+/* Bookmark Item */
+.bookmark-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: background 0.2s ease;
+}
+
+.bookmark-item:hover {
+  background: #f0f0f0;
+}
+
+.bookmark-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.bookmark-name {
+  display: block;
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bookmark-date {
+  display: block;
+  font-size: 11px;
+  color: #999;
+  margin-top: 2px;
+}
+
+.bookmark-actions {
+  display: flex;
+  gap: 4px;
+  margin-left: 12px;
+}
+
+/* Folder Item */
+.folder-item {
+  margin-bottom: 8px;
+}
+
+.folder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: #e8f4fc;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.folder-header:hover {
+  background: #d8ecf8;
+}
+
+.folder-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.folder-toggle {
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.folder-toggle.collapsed {
+  transform: rotate(-90deg);
+}
+
+.folder-icon {
+  font-size: 14px;
+}
+
+.folder-name {
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.folder-count {
+  font-size: 11px;
+  color: #888;
+  background: #fff;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.folder-actions {
+  display: flex;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+.folder-contents {
+  margin-left: 16px;
+  margin-top: 4px;
+  padding-left: 12px;
+  border-left: 2px solid #e0e0e0;
+}
+
+.folder-contents.collapsed {
+  display: none;
+}
+
+.folder-contents .bookmark-item {
+  margin-bottom: 4px;
+}
+
+/* Folder Select in Dialog */
+.folder-select-wrapper {
+  margin-bottom: 16px;
+}
+
+.folder-select-wrapper label {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.folder-select-wrapper select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+}
+
+.folder-select-wrapper select:focus {
+  outline: none;
+  border-color: #4A90D9;
+}
+
+/* Dialog */
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialog-overlay.hidden {
+  display: none;
+}
+
+.dialog {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  width: 300px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.dialog h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.dialog p {
+  margin-bottom: 16px;
+  color: #666;
+}
+
+.dialog input[type="text"] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.dialog input[type="text"]:focus {
+  outline: none;
+  border-color: #4A90D9;
+  box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1);
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.dialog-actions .btn {
+  width: auto;
+  padding: 8px 16px;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 1001;
+  transition: opacity 0.3s ease;
+}
+
+.toast.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toast.success {
+  background: #27AE60;
+  color: white;
+}
+
+.toast.error {
+  background: #E74C3C;
+  color: white;
+}
+
+.toast.warning {
+  background: #F39C12;
+  color: white;
+}
+
+/* Settings */
+.settings {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.toggle-setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.toggle-label {
+  font-size: 13px;
+  color: #333;
+}
+
+.toggle-setting input {
+  display: none;
+}
+
+.toggle-slider {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: #ccc;
+  border-radius: 12px;
+  transition: background 0.2s ease;
+}
+
+.toggle-slider::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-setting input:checked + .toggle-slider {
+  background: #4A90D9;
+}
+
+.toggle-setting input:checked + .toggle-slider::after {
+  transform: translateX(20px);
+}
+
+.advanced-settings {
+  margin-top: 12px;
+}
+
+.advanced-settings summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: #666;
+  padding: 4px 0;
+  user-select: none;
+}
+
+.advanced-settings summary:hover {
+  color: #333;
+}
+
+.export-import-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.export-import-actions .btn {
+  flex: 1;
+}
+
+/* Scrollbar */
+.bookmarks-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bookmarks-list::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 3px;
+}
+
+.bookmarks-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+.bookmarks-list::-webkit-scrollbar-thumb:hover {
+  background: #bbb;
+}

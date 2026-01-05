@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Bookmark</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1 data-i18n="headerTitle"></h1>
+      <p class="current-url" id="currentUrl"></p>
+    </header>
+
+    <section class="actions">
+      <button id="saveBtn" class="btn btn-primary" data-i18n="saveCurrentForm"></button>
+    </section>
+
+    <section class="settings">
+      <label class="toggle-setting">
+        <span class="toggle-label" data-i18n="promptOnSubmit"></span>
+        <input type="checkbox" id="promptOnSubmit" />
+        <span class="toggle-slider"></span>
+      </label>
+      <label class="toggle-setting">
+        <span class="toggle-label" data-i18n="includePasswords"></span>
+        <input type="checkbox" id="includePasswords" />
+        <span class="toggle-slider"></span>
+      </label>
+      <details class="advanced-settings">
+        <summary data-i18n="advancedSettings"></summary>
+        <div class="export-import-actions">
+          <button id="exportBtn" class="btn btn-small btn-secondary" data-i18n="export"></button>
+          <button id="importBtn" class="btn btn-small btn-secondary" data-i18n="import"></button>
+          <input type="file" id="importFile" accept=".json" style="display: none;" />
+        </div>
+      </details>
+    </section>
+
+    <section class="bookmarks-section">
+      <div class="section-header">
+        <h2 data-i18n="savedBookmarks"></h2>
+        <button id="addFolderBtn" class="btn btn-icon" title="New Folder" data-i18n-title="newFolder">📁+</button>
+      </div>
+      <div id="bookmarksList" class="bookmarks-list">
+        <p class="empty-message" data-i18n="noBookmarks"></p>
+      </div>
+    </section>
+  </div>
+
+  <!-- Save Dialog -->
+  <div id="saveDialog" class="dialog-overlay hidden">
+    <div class="dialog">
+      <h3 data-i18n="saveBookmarkTitle"></h3>
+      <input type="text" id="bookmarkName" data-i18n-placeholder="bookmarkNamePlaceholder" />
+      <div class="folder-select-wrapper">
+        <label data-i18n="saveToFolder"></label>
+        <select id="folderSelect"></select>
+      </div>
+      <div class="dialog-actions">
+        <button id="cancelSave" class="btn btn-secondary" data-i18n="cancel"></button>
+        <button id="confirmSave" class="btn btn-primary" data-i18n="save"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Folder Dialog -->
+  <div id="folderDialog" class="dialog-overlay hidden">
+    <div class="dialog">
+      <h3 data-i18n="newFolderTitle"></h3>
+      <input type="text" id="folderName" data-i18n-placeholder="folderNamePlaceholder" />
+      <div class="dialog-actions">
+        <button id="cancelFolder" class="btn btn-secondary" data-i18n="cancel"></button>
+        <button id="confirmFolder" class="btn btn-primary" data-i18n="create"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Dialog -->
+  <div id="editDialog" class="dialog-overlay hidden">
+    <div class="dialog">
+      <h3 data-i18n="editBookmarkTitle"></h3>
+      <input type="text" id="editBookmarkName" data-i18n-placeholder="bookmarkNamePlaceholder" />
+      <div class="dialog-actions">
+        <button id="cancelEdit" class="btn btn-secondary" data-i18n="cancel"></button>
+        <button id="confirmEdit" class="btn btn-primary" data-i18n="update"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Dialog -->
+  <div id="deleteDialog" class="dialog-overlay hidden">
+    <div class="dialog">
+      <h3 data-i18n="deleteConfirmTitle"></h3>
+      <p id="deleteMessage"></p>
+      <div class="dialog-actions">
+        <button id="cancelDelete" class="btn btn-secondary" data-i18n="cancel"></button>
+        <button id="confirmDelete" class="btn btn-danger" data-i18n="delete"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
