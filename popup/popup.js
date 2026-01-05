@@ -101,11 +101,11 @@
   }
 
   /**
-   * Load data from storage
+   * Load data from storage (using sync for persistence)
    */
   async function loadData() {
     return new Promise(resolve => {
-      chrome.storage.local.get(['bookmarks', 'folders', 'collapsedFolders'], result => {
+      chrome.storage.sync.get(['bookmarks', 'folders', 'collapsedFolders'], result => {
         bookmarks = result.bookmarks || [];
         folders = result.folders || [];
         collapsedFolders = new Set(result.collapsedFolders || []);
@@ -115,11 +115,11 @@
   }
 
   /**
-   * Save data to storage
+   * Save data to storage (using sync for persistence)
    */
   async function saveData() {
     return new Promise(resolve => {
-      chrome.storage.local.set({
+      chrome.storage.sync.set({
         bookmarks,
         folders,
         collapsedFolders: Array.from(collapsedFolders)

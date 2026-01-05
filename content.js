@@ -8,21 +8,24 @@
   let settings = { includePasswords: false, autoRestore: false };
 
   // Load settings on init
-  chrome.storage.local.get(['includePasswords', 'autoRestore', 'bookmarks'], result => {
+  chrome.storage.local.get(['includePasswords', 'autoRestore'], result => {
     settings.includePasswords = result.includePasswords || false;
     settings.autoRestore = result.autoRestore || false;
 
     // Auto-restore if enabled
     if (settings.autoRestore) {
-      const bookmarks = result.bookmarks || [];
-      // Wait for DOM to be ready
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
+      // Load bookmarks from sync storage
+      chrome.storage.sync.get(['bookmarks'], syncResult => {
+        const bookmarks = syncResult.bookmarks || [];
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', () => {
+            autoRestoreForm(bookmarks);
+          });
+        } else {
           autoRestoreForm(bookmarks);
-        });
-      } else {
-        autoRestoreForm(bookmarks);
-      }
+        }
+      });
     }
   });
 
