@@ -14,16 +14,28 @@
     settings.includePasswords = result.includePasswords || false;
     settings.autoRestore = result.autoRestore || false;
 
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        initFeatures(result.bookmarks || []);
+      });
+    } else {
+      initFeatures(result.bookmarks || []);
+    }
+  });
+
+  /**
+   * Initialize features after DOM is ready
+   */
+  function initFeatures(bookmarks) {
     if (settings.promptOnSubmit) {
       attachFormListeners();
     }
 
-    // Auto-restore if enabled
     if (settings.autoRestore) {
-      const bookmarks = result.bookmarks || [];
       autoRestoreForm(bookmarks);
     }
-  });
+  }
 
   /**
    * Auto-restore form from matching bookmark
@@ -40,17 +52,10 @@
       // Use the most recently updated bookmark
       const bookmark = matchingBookmarks[0];
 
-      // Wait for DOM to be ready
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-          restoreFormFields(bookmark.fields);
-        });
-      } else {
-        // Small delay to ensure dynamic forms are loaded
-        setTimeout(() => {
-          restoreFormFields(bookmark.fields);
-        }, 500);
-      }
+      // Small delay to ensure dynamic forms are loaded
+      setTimeout(() => {
+        restoreFormFields(bookmark.fields);
+      }, 500);
     }
   }
 
@@ -425,9 +430,16 @@
    * Attach listeners to all forms
    */
   function attachFormListeners() {
+    // Attach to forms
     document.querySelectorAll('form').forEach(form => {
       form.removeEventListener('submit', handleFormSubmit);
       form.addEventListener('submit', handleFormSubmit);
+    });
+
+    // Also attach to submit buttons (for JS-based form submissions)
+    document.querySelectorAll('button[type="submit"], input[type="submit"]').forEach(btn => {
+      btn.removeEventListener('click', handleSubmitButtonClick);
+      btn.addEventListener('click', handleSubmitButtonClick);
     });
 
     // Also observe for dynamically added forms
@@ -440,6 +452,9 @@
             node.querySelectorAll('form').forEach(form => {
               form.addEventListener('submit', handleFormSubmit);
             });
+            node.querySelectorAll('button[type="submit"], input[type="submit"]').forEach(btn => {
+              btn.addEventListener('click', handleSubmitButtonClick);
+            });
           }
         });
       });
@@ -449,11 +464,24 @@
   }
 
   /**
+   * Handle submit button click (fallback for JS form submissions)
+   */
+  function handleSubmitButtonClick(event) {
+    if (!settings.promptOnSubmit) return;
+
+    // Capture form data on button click (before potential navigation)
+    pendingFormData = getFormFields(settings.includePasswords);
+  }
+
+  /**
    * Detach listeners from all forms
    */
   function detachFormListeners() {
     document.querySelectorAll('form').forEach(form => {
       form.removeEventListener('submit', handleFormSubmit);
+    });
+    document.querySelectorAll('button[type="submit"], input[type="submit"]').forEach(btn => {
+      btn.removeEventListener('click', handleSubmitButtonClick);
     });
   }
 
