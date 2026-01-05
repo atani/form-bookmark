@@ -5,37 +5,26 @@
   'use strict';
 
   // Settings state
-  let settings = { promptOnSubmit: false, includePasswords: false, autoRestore: false };
-  let pendingFormData = null;
+  let settings = { includePasswords: false, autoRestore: false };
 
   // Load settings on init
-  chrome.storage.local.get(['promptOnSubmit', 'includePasswords', 'autoRestore', 'bookmarks'], result => {
-    settings.promptOnSubmit = result.promptOnSubmit || false;
+  chrome.storage.local.get(['includePasswords', 'autoRestore', 'bookmarks'], result => {
     settings.includePasswords = result.includePasswords || false;
     settings.autoRestore = result.autoRestore || false;
 
-    // Wait for DOM to be ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => {
-        initFeatures(result.bookmarks || []);
-      });
-    } else {
-      initFeatures(result.bookmarks || []);
+    // Auto-restore if enabled
+    if (settings.autoRestore) {
+      const bookmarks = result.bookmarks || [];
+      // Wait for DOM to be ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          autoRestoreForm(bookmarks);
+        });
+      } else {
+        autoRestoreForm(bookmarks);
+      }
     }
   });
-
-  /**
-   * Initialize features after DOM is ready
-   */
-  function initFeatures(bookmarks) {
-    if (settings.promptOnSubmit) {
-      attachFormListeners();
-    }
-
-    if (settings.autoRestore) {
-      autoRestoreForm(bookmarks);
-    }
-  }
 
   /**
    * Auto-restore form from matching bookmark
@@ -56,6 +45,18 @@
       setTimeout(() => {
         restoreFormFields(bookmark.fields);
       }, 500);
+    }
+  }
+
+  /**
+   * Normalize URL (remove query parameters and hash)
+   */
+  function normalizeUrl(url) {
+    try {
+      const urlObj = new URL(url);
+      return `${urlObj.origin}${urlObj.pathname}`;
+    } catch {
+      return url;
     }
   }
 
@@ -244,247 +245,6 @@
     return results;
   }
 
-  /**
-   * Create and show the save prompt dialog
-   */
-  function showSavePrompt() {
-    // Remove existing dialog if any
-    const existing = document.getElementById('form-bookmark-prompt');
-    if (existing) existing.remove();
-
-    const dialog = document.createElement('div');
-    dialog.id = 'form-bookmark-prompt';
-    dialog.innerHTML = `
-      <style>
-        #form-bookmark-prompt {
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          background: white;
-          border-radius: 12px;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-          padding: 16px 20px;
-          z-index: 2147483647;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          font-size: 14px;
-          max-width: 320px;
-          animation: slideIn 0.3s ease;
-        }
-        @keyframes slideIn {
-          from { transform: translateX(100%); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
-        }
-        #form-bookmark-prompt .fb-message {
-          margin-bottom: 12px;
-          color: #333;
-        }
-        #form-bookmark-prompt .fb-input {
-          width: 100%;
-          padding: 8px 12px;
-          border: 1px solid #ddd;
-          border-radius: 6px;
-          font-size: 14px;
-          margin-bottom: 12px;
-          box-sizing: border-box;
-        }
-        #form-bookmark-prompt .fb-input:focus {
-          outline: none;
-          border-color: #4A90D9;
-        }
-        #form-bookmark-prompt .fb-actions {
-          display: flex;
-          gap: 8px;
-          justify-content: flex-end;
-        }
-        #form-bookmark-prompt .fb-btn {
-          padding: 8px 16px;
-          border: none;
-          border-radius: 6px;
-          font-size: 13px;
-          cursor: pointer;
-          font-weight: 500;
-        }
-        #form-bookmark-prompt .fb-btn-save {
-          background: #4A90D9;
-          color: white;
-        }
-        #form-bookmark-prompt .fb-btn-save:hover {
-          background: #3A7BC8;
-        }
-        #form-bookmark-prompt .fb-btn-skip {
-          background: #e0e0e0;
-          color: #333;
-        }
-        #form-bookmark-prompt .fb-btn-skip:hover {
-          background: #d0d0d0;
-        }
-      </style>
-      <div class="fb-message">${chrome.i18n.getMessage('submitPromptMessage')}</div>
-      <input type="text" class="fb-input" placeholder="${chrome.i18n.getMessage('bookmarkNamePlaceholder')}" value="${document.title}" />
-      <div class="fb-actions">
-        <button class="fb-btn fb-btn-skip">${chrome.i18n.getMessage('submitPromptSkip')}</button>
-        <button class="fb-btn fb-btn-save">${chrome.i18n.getMessage('submitPromptSave')}</button>
-      </div>
-    `;
-
-    document.body.appendChild(dialog);
-
-    const input = dialog.querySelector('.fb-input');
-    const saveBtn = dialog.querySelector('.fb-btn-save');
-    const skipBtn = dialog.querySelector('.fb-btn-skip');
-
-    input.focus();
-    input.select();
-
-    saveBtn.addEventListener('click', () => {
-      const name = input.value.trim();
-      if (name && pendingFormData) {
-        saveFormData(name, pendingFormData);
-      }
-      dialog.remove();
-      pendingFormData = null;
-    });
-
-    skipBtn.addEventListener('click', () => {
-      dialog.remove();
-      pendingFormData = null;
-    });
-
-    input.addEventListener('keypress', e => {
-      if (e.key === 'Enter') {
-        saveBtn.click();
-      }
-    });
-
-    // Auto-dismiss after 30 seconds
-    setTimeout(() => {
-      if (dialog.parentNode) {
-        dialog.remove();
-        pendingFormData = null;
-      }
-    }, 30000);
-  }
-
-  /**
-   * Save form data to storage
-   */
-  async function saveFormData(name, fields) {
-    const urlPattern = normalizeUrl(window.location.href);
-    const newBookmark = {
-      id: generateUUID(),
-      name,
-      urlPattern,
-      fields,
-      createdAt: Date.now(),
-      updatedAt: Date.now()
-    };
-
-    chrome.storage.local.get(['bookmarks'], result => {
-      const bookmarks = result.bookmarks || [];
-      bookmarks.push(newBookmark);
-      chrome.storage.local.set({ bookmarks });
-    });
-  }
-
-  /**
-   * Generate UUID
-   */
-  function generateUUID() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
-  }
-
-  /**
-   * Normalize URL
-   */
-  function normalizeUrl(url) {
-    try {
-      const urlObj = new URL(url);
-      return `${urlObj.origin}${urlObj.pathname}`;
-    } catch {
-      return url;
-    }
-  }
-
-  /**
-   * Handle form submit
-   */
-  function handleFormSubmit(event) {
-    if (!settings.promptOnSubmit) return;
-
-    // Capture form data before submit (using current password setting)
-    pendingFormData = getFormFields(settings.includePasswords);
-
-    // Show prompt after a short delay (allow form to submit)
-    setTimeout(() => {
-      if (pendingFormData && Object.keys(pendingFormData).length > 0) {
-        showSavePrompt();
-      }
-    }, 100);
-  }
-
-  /**
-   * Attach listeners to all forms
-   */
-  function attachFormListeners() {
-    // Attach to forms
-    document.querySelectorAll('form').forEach(form => {
-      form.removeEventListener('submit', handleFormSubmit);
-      form.addEventListener('submit', handleFormSubmit);
-    });
-
-    // Also attach to submit buttons (for JS-based form submissions)
-    document.querySelectorAll('button[type="submit"], input[type="submit"]').forEach(btn => {
-      btn.removeEventListener('click', handleSubmitButtonClick);
-      btn.addEventListener('click', handleSubmitButtonClick);
-    });
-
-    // Also observe for dynamically added forms
-    const observer = new MutationObserver(mutations => {
-      mutations.forEach(mutation => {
-        mutation.addedNodes.forEach(node => {
-          if (node.nodeName === 'FORM') {
-            node.addEventListener('submit', handleFormSubmit);
-          } else if (node.querySelectorAll) {
-            node.querySelectorAll('form').forEach(form => {
-              form.addEventListener('submit', handleFormSubmit);
-            });
-            node.querySelectorAll('button[type="submit"], input[type="submit"]').forEach(btn => {
-              btn.addEventListener('click', handleSubmitButtonClick);
-            });
-          }
-        });
-      });
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-  }
-
-  /**
-   * Handle submit button click (fallback for JS form submissions)
-   */
-  function handleSubmitButtonClick(event) {
-    if (!settings.promptOnSubmit) return;
-
-    // Capture form data on button click (before potential navigation)
-    pendingFormData = getFormFields(settings.includePasswords);
-  }
-
-  /**
-   * Detach listeners from all forms
-   */
-  function detachFormListeners() {
-    document.querySelectorAll('form').forEach(form => {
-      form.removeEventListener('submit', handleFormSubmit);
-    });
-    document.querySelectorAll('button[type="submit"], input[type="submit"]').forEach(btn => {
-      btn.removeEventListener('click', handleSubmitButtonClick);
-    });
-  }
-
   // Listen for messages from popup
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'getFormFields') {
@@ -496,11 +256,6 @@
       sendResponse({ success: true, results });
     } else if (request.action === 'updateSettings') {
       settings = { ...settings, ...request.settings };
-      if (settings.promptOnSubmit) {
-        attachFormListeners();
-      } else {
-        detachFormListeners();
-      }
       sendResponse({ success: true });
     }
     return true; // Keep message channel open for async response

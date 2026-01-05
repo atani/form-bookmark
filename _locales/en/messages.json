@@ -141,10 +141,6 @@
     "message": "Failed to restore",
     "description": "Error when restore failed"
   },
-  "promptOnSubmit": {
-    "message": "Prompt to save on form submit",
-    "description": "Setting to prompt save on form submit"
-  },
   "includePasswords": {
     "message": "Include passwords (for testing)",
     "description": "Setting to include password fields"
@@ -152,18 +148,6 @@
   "autoRestore": {
     "message": "Auto-restore on page load",
     "description": "Setting to auto-restore form on page load"
-  },
-  "submitPromptMessage": {
-    "message": "Form submitted. Save the input values?",
-    "description": "Prompt message shown after form submit"
-  },
-  "submitPromptSave": {
-    "message": "Save",
-    "description": "Save button in submit prompt"
-  },
-  "submitPromptSkip": {
-    "message": "Skip",
-    "description": "Skip button in submit prompt"
   },
   "newFolder": {
     "message": "New Folder",

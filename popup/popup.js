@@ -38,7 +38,6 @@
     currentUrl: document.getElementById('currentUrl'),
     saveBtn: document.getElementById('saveBtn'),
     addFolderBtn: document.getElementById('addFolderBtn'),
-    promptOnSubmit: document.getElementById('promptOnSubmit'),
     includePasswords: document.getElementById('includePasswords'),
     autoRestore: document.getElementById('autoRestore'),
     exportBtn: document.getElementById('exportBtn'),
@@ -133,9 +132,8 @@
    */
   async function loadSettings() {
     return new Promise(resolve => {
-      chrome.storage.local.get(['promptOnSubmit', 'includePasswords', 'autoRestore'], result => {
+      chrome.storage.local.get(['includePasswords', 'autoRestore'], result => {
         resolve({
-          promptOnSubmit: result.promptOnSubmit || false,
           includePasswords: result.includePasswords || false,
           autoRestore: result.autoRestore || false
         });
@@ -705,20 +703,10 @@
 
     // Load settings
     const settings = await loadSettings();
-    elements.promptOnSubmit.checked = settings.promptOnSubmit;
     elements.includePasswords.checked = settings.includePasswords;
     elements.autoRestore.checked = settings.autoRestore;
 
     // Settings change handlers
-    elements.promptOnSubmit.addEventListener('change', async () => {
-      await saveSettings({ promptOnSubmit: elements.promptOnSubmit.checked });
-      // Notify content script of settings change
-      chrome.tabs.sendMessage(currentTabId, {
-        action: 'updateSettings',
-        settings: { promptOnSubmit: elements.promptOnSubmit.checked }
-      }).catch(() => {});
-    });
-
     elements.includePasswords.addEventListener('change', async () => {
       await saveSettings({ includePasswords: elements.includePasswords.checked });
       // Notify content script of settings change

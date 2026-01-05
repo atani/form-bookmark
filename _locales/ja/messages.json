@@ -141,10 +141,6 @@
     "message": "復元に失敗しました",
     "description": "Error when restore failed"
   },
-  "promptOnSubmit": {
-    "message": "フォーム送信時に保存を確認",
-    "description": "Setting to prompt save on form submit"
-  },
   "includePasswords": {
     "message": "パスワードも保存する（テスト用）",
     "description": "Setting to include password fields"
@@ -152,18 +148,6 @@
   "autoRestore": {
     "message": "ページ読み込み時に自動復元",
     "description": "Setting to auto-restore form on page load"
-  },
-  "submitPromptMessage": {
-    "message": "フォームを送信しました。入力内容を保存しますか？",
-    "description": "Prompt message shown after form submit"
-  },
-  "submitPromptSave": {
-    "message": "保存する",
-    "description": "Save button in submit prompt"
-  },
-  "submitPromptSkip": {
-    "message": "スキップ",
-    "description": "Skip button in submit prompt"
   },
   "newFolder": {
     "message": "新しいフォルダ",
