@@ -17,6 +17,16 @@
       <button id="saveBtn" class="btn btn-primary" data-i18n="saveCurrentForm"></button>
     </section>
 
+    <section class="bookmarks-section">
+      <div class="section-header">
+        <h2 data-i18n="savedBookmarks"></h2>
+        <button id="addFolderBtn" class="btn btn-icon" title="New Folder" data-i18n-title="newFolder">📁+</button>
+      </div>
+      <div id="bookmarksList" class="bookmarks-list">
+        <p class="empty-message" data-i18n="noBookmarks"></p>
+      </div>
+    </section>
+
     <section class="settings">
       <label class="toggle-setting">
         <span class="toggle-label" data-i18n="includePasswords"></span>
@@ -36,16 +46,6 @@
           <input type="file" id="importFile" accept=".json" style="display: none;" />
         </div>
       </details>
-    </section>
-
-    <section class="bookmarks-section">
-      <div class="section-header">
-        <h2 data-i18n="savedBookmarks"></h2>
-        <button id="addFolderBtn" class="btn btn-icon" title="New Folder" data-i18n-title="newFolder">📁+</button>
-      </div>
-      <div id="bookmarksList" class="bookmarks-list">
-        <p class="empty-message" data-i18n="noBookmarks"></p>
-      </div>
     </section>
   </div>
 
