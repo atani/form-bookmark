@@ -149,6 +149,10 @@
     "message": "Include passwords (for testing)",
     "description": "Setting to include password fields"
   },
+  "autoRestore": {
+    "message": "Auto-restore on page load",
+    "description": "Setting to auto-restore form on page load"
+  },
   "submitPromptMessage": {
     "message": "Form submitted. Save the input values?",
     "description": "Prompt message shown after form submit"

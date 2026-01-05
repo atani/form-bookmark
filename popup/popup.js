@@ -40,6 +40,7 @@
     addFolderBtn: document.getElementById('addFolderBtn'),
     promptOnSubmit: document.getElementById('promptOnSubmit'),
     includePasswords: document.getElementById('includePasswords'),
+    autoRestore: document.getElementById('autoRestore'),
     exportBtn: document.getElementById('exportBtn'),
     importBtn: document.getElementById('importBtn'),
     importFile: document.getElementById('importFile'),
@@ -132,10 +133,11 @@
    */
   async function loadSettings() {
     return new Promise(resolve => {
-      chrome.storage.local.get(['promptOnSubmit', 'includePasswords'], result => {
+      chrome.storage.local.get(['promptOnSubmit', 'includePasswords', 'autoRestore'], result => {
         resolve({
           promptOnSubmit: result.promptOnSubmit || false,
-          includePasswords: result.includePasswords || false
+          includePasswords: result.includePasswords || false,
+          autoRestore: result.autoRestore || false
         });
       });
     });
@@ -705,6 +707,7 @@
     const settings = await loadSettings();
     elements.promptOnSubmit.checked = settings.promptOnSubmit;
     elements.includePasswords.checked = settings.includePasswords;
+    elements.autoRestore.checked = settings.autoRestore;
 
     // Settings change handlers
     elements.promptOnSubmit.addEventListener('change', async () => {
@@ -723,6 +726,10 @@
         action: 'updateSettings',
         settings: { includePasswords: elements.includePasswords.checked }
       }).catch(() => {});
+    });
+
+    elements.autoRestore.addEventListener('change', async () => {
+      await saveSettings({ autoRestore: elements.autoRestore.checked });
     });
 
     // Event listeners

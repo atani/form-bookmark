@@ -149,6 +149,10 @@
     "message": "パスワードも保存する（テスト用）",
     "description": "Setting to include password fields"
   },
+  "autoRestore": {
+    "message": "ページ読み込み時に自動復元",
+    "description": "Setting to auto-restore form on page load"
+  },
   "submitPromptMessage": {
     "message": "フォームを送信しました。入力内容を保存しますか？",
     "description": "Prompt message shown after form submit"

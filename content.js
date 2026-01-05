@@ -5,17 +5,54 @@
   'use strict';
 
   // Settings state
-  let settings = { promptOnSubmit: false, includePasswords: false };
+  let settings = { promptOnSubmit: false, includePasswords: false, autoRestore: false };
   let pendingFormData = null;
 
   // Load settings on init
-  chrome.storage.local.get(['promptOnSubmit', 'includePasswords'], result => {
+  chrome.storage.local.get(['promptOnSubmit', 'includePasswords', 'autoRestore', 'bookmarks'], result => {
     settings.promptOnSubmit = result.promptOnSubmit || false;
     settings.includePasswords = result.includePasswords || false;
+    settings.autoRestore = result.autoRestore || false;
+
     if (settings.promptOnSubmit) {
       attachFormListeners();
     }
+
+    // Auto-restore if enabled
+    if (settings.autoRestore) {
+      const bookmarks = result.bookmarks || [];
+      autoRestoreForm(bookmarks);
+    }
   });
+
+  /**
+   * Auto-restore form from matching bookmark
+   */
+  function autoRestoreForm(bookmarks) {
+    const currentUrlPattern = normalizeUrl(window.location.href);
+
+    // Find bookmarks matching current URL, sorted by most recent
+    const matchingBookmarks = bookmarks
+      .filter(b => b.urlPattern === currentUrlPattern)
+      .sort((a, b) => b.updatedAt - a.updatedAt);
+
+    if (matchingBookmarks.length > 0) {
+      // Use the most recently updated bookmark
+      const bookmark = matchingBookmarks[0];
+
+      // Wait for DOM to be ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          restoreFormFields(bookmark.fields);
+        });
+      } else {
+        // Small delay to ensure dynamic forms are loaded
+        setTimeout(() => {
+          restoreFormFields(bookmark.fields);
+        }, 500);
+      }
+    }
+  }
 
   /**
    * Get a unique identifier for a form field
