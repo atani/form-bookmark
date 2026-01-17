@@ -27,32 +27,24 @@
   let currentTabId = null;
   let currentTitle = '';
   let bookmarks = [];
-  let folders = [];
-  let collapsedFolders = new Set();
   let editingBookmarkId = null;
   let deletingBookmarkId = null;
-  let deletingFolderId = null;
   let environmentGroups = [];
   let editingEnvGroupId = null;
   let editingEnvPatterns = [];
 
   // Settings state
   let matchSettings = {
-    showAllBookmarks: false,
-    fuzzySubdomainMatch: false,
-    useEnvironmentGroups: false
+    showAllBookmarks: false
   };
 
   // DOM Elements
   const elements = {
     currentUrl: document.getElementById('currentUrl'),
     saveBtn: document.getElementById('saveBtn'),
-    addFolderBtn: document.getElementById('addFolderBtn'),
     includePasswords: document.getElementById('includePasswords'),
     autoRestore: document.getElementById('autoRestore'),
     showAllBookmarks: document.getElementById('showAllBookmarks'),
-    fuzzySubdomainMatch: document.getElementById('fuzzySubdomainMatch'),
-    useEnvironmentGroups: document.getElementById('useEnvironmentGroups'),
     manageEnvGroupsBtn: document.getElementById('manageEnvGroupsBtn'),
     exportBtn: document.getElementById('exportBtn'),
     importBtn: document.getElementById('importBtn'),
@@ -60,13 +52,8 @@
     bookmarksList: document.getElementById('bookmarksList'),
     saveDialog: document.getElementById('saveDialog'),
     bookmarkName: document.getElementById('bookmarkName'),
-    folderSelect: document.getElementById('folderSelect'),
     cancelSave: document.getElementById('cancelSave'),
     confirmSave: document.getElementById('confirmSave'),
-    folderDialog: document.getElementById('folderDialog'),
-    folderName: document.getElementById('folderName'),
-    cancelFolder: document.getElementById('cancelFolder'),
-    confirmFolder: document.getElementById('confirmFolder'),
     editDialog: document.getElementById('editDialog'),
     editBookmarkName: document.getElementById('editBookmarkName'),
     cancelEdit: document.getElementById('cancelEdit'),
@@ -185,10 +172,8 @@
    */
   async function loadData() {
     return new Promise(resolve => {
-      chrome.storage.sync.get(['bookmarks', 'folders', 'collapsedFolders'], result => {
+      chrome.storage.sync.get(['bookmarks'], result => {
         bookmarks = result.bookmarks || [];
-        folders = result.folders || [];
-        collapsedFolders = new Set(result.collapsedFolders || []);
         resolve();
       });
     });
@@ -199,11 +184,7 @@
    */
   async function saveData() {
     return new Promise(resolve => {
-      chrome.storage.sync.set({
-        bookmarks,
-        folders,
-        collapsedFolders: Array.from(collapsedFolders)
-      }, resolve);
+      chrome.storage.sync.set({ bookmarks }, resolve);
     });
   }
 
@@ -216,15 +197,11 @@
         'includePasswords',
         'autoRestore',
         'showAllBookmarks',
-        'fuzzySubdomainMatch',
-        'useEnvironmentGroups',
         'environmentGroups'
       ], result => {
         environmentGroups = result.environmentGroups || [];
         matchSettings = {
-          showAllBookmarks: result.showAllBookmarks || false,
-          fuzzySubdomainMatch: result.fuzzySubdomainMatch || false,
-          useEnvironmentGroups: result.useEnvironmentGroups || false
+          showAllBookmarks: result.showAllBookmarks || false
         };
         resolve({
           includePasswords: result.includePasswords || false,
@@ -299,7 +276,9 @@
   }
 
   /**
-   * Check if a bookmark matches the current URL based on settings
+   * Check if a bookmark matches the current URL
+   * - Fuzzy subdomain match is always enabled (ignores numbers in subdomain)
+   * - Environment group match is enabled when groups exist
    */
   function bookmarkMatchesUrl(bookmark, url) {
     const normalizedUrl = normalizeUrl(url);
@@ -309,17 +288,15 @@
       return { matches: true, type: 'exact' };
     }
 
-    // Fuzzy subdomain match
-    if (matchSettings.fuzzySubdomainMatch) {
-      const fuzzyUrl = normalizeUrlFuzzy(url);
-      const fuzzyBookmark = normalizeUrlFuzzy(bookmark.urlPattern);
-      if (fuzzyBookmark === fuzzyUrl) {
-        return { matches: true, type: 'fuzzy' };
-      }
+    // Fuzzy subdomain match (always enabled)
+    const fuzzyUrl = normalizeUrlFuzzy(url);
+    const fuzzyBookmark = normalizeUrlFuzzy(bookmark.urlPattern);
+    if (fuzzyBookmark === fuzzyUrl) {
+      return { matches: true, type: 'fuzzy' };
     }
 
-    // Environment group match
-    if (matchSettings.useEnvironmentGroups) {
+    // Environment group match (enabled when groups exist)
+    if (environmentGroups.length > 0) {
       const groupedOrigins = getGroupedOrigins(url);
       try {
         const bookmarkOrigin = getUrlOrigin(bookmark.urlPattern);
@@ -359,70 +336,6 @@
   }
 
   /**
-   * Get folders for current URL
-   */
-  function getFoldersForUrl(url) {
-    if (matchSettings.showAllBookmarks) {
-      const normalizedUrl = normalizeUrl(url);
-      return folders.map(f => ({
-        ...f,
-        matchType: f.urlPattern === normalizedUrl ? 'current' : 'other'
-      }));
-    }
-
-    const normalizedUrl = normalizeUrl(url);
-    const matchedFolders = [];
-
-    for (const folder of folders) {
-      // Exact match
-      if (folder.urlPattern === normalizedUrl) {
-        matchedFolders.push({ ...folder, matchType: 'exact' });
-        continue;
-      }
-
-      // Fuzzy match
-      if (matchSettings.fuzzySubdomainMatch) {
-        const fuzzyUrl = normalizeUrlFuzzy(url);
-        const fuzzyFolder = normalizeUrlFuzzy(folder.urlPattern);
-        if (fuzzyFolder === fuzzyUrl) {
-          matchedFolders.push({ ...folder, matchType: 'fuzzy' });
-          continue;
-        }
-      }
-
-      // Environment group match
-      if (matchSettings.useEnvironmentGroups) {
-        const groupedOrigins = getGroupedOrigins(url);
-        try {
-          const folderOrigin = getUrlOrigin(folder.urlPattern);
-          if (groupedOrigins.includes(folderOrigin)) {
-            const urlPath = new URL(url).pathname;
-            const folderPath = new URL(folder.urlPattern).pathname;
-            if (urlPath === folderPath) {
-              matchedFolders.push({ ...folder, matchType: 'envGroup' });
-            }
-          }
-        } catch {
-          // Invalid URL
-        }
-      }
-    }
-
-    return matchedFolders;
-  }
-
-  /**
-   * Update folder select dropdown
-   */
-  function updateFolderSelect() {
-    const urlFolders = getFoldersForUrl(currentUrl);
-    elements.folderSelect.innerHTML = `
-      <option value="">${i18n.get('rootFolder')}</option>
-      ${urlFolders.map(f => `<option value="${f.id}">${escapeHtml(f.name)}</option>`).join('')}
-    `;
-  }
-
-  /**
    * Render bookmark item HTML
    */
   function renderBookmarkItem(bookmark) {
@@ -454,78 +367,25 @@
   }
 
   /**
-   * Render folder item HTML
-   */
-  function renderFolderItem(folder, folderBookmarks) {
-    const isCollapsed = collapsedFolders.has(folder.id);
-    return `
-      <div class="folder-item" data-id="${folder.id}" data-type="folder">
-        <div class="folder-header">
-          <div class="folder-info">
-            <span class="folder-toggle ${isCollapsed ? 'collapsed' : ''}">▼</span>
-            <span class="folder-icon">📁</span>
-            <span class="folder-name">${escapeHtml(folder.name)}</span>
-            <span class="folder-count">${folderBookmarks.length}</span>
-          </div>
-          <div class="folder-actions">
-            <button class="btn btn-small btn-delete" data-action="delete-folder" title="${i18n.get('delete')}">
-              🗑️
-            </button>
-          </div>
-        </div>
-        <div class="folder-contents ${isCollapsed ? 'collapsed' : ''}">
-          ${folderBookmarks.map(b => renderBookmarkItem(b)).join('')}
-        </div>
-      </div>
-    `;
-  }
-
-  /**
    * Render bookmarks list
    */
   function renderBookmarks() {
     const urlBookmarks = getBookmarksForUrl(currentUrl);
-    const urlFolders = getFoldersForUrl(currentUrl);
 
-    if (urlBookmarks.length === 0 && urlFolders.length === 0) {
+    if (urlBookmarks.length === 0) {
       elements.bookmarksList.innerHTML = `<p class="empty-message">${i18n.get('noBookmarks')}</p>`;
       return;
     }
 
-    // Group bookmarks by folder
-    const rootBookmarks = urlBookmarks.filter(b => !b.folderId);
-    const folderBookmarksMap = {};
-    urlFolders.forEach(f => {
-      folderBookmarksMap[f.id] = urlBookmarks.filter(b => b.folderId === f.id);
-    });
-
     // Sort by updatedAt descending
-    rootBookmarks.sort((a, b) => b.updatedAt - a.updatedAt);
-    urlFolders.sort((a, b) => a.name.localeCompare(b.name));
+    urlBookmarks.sort((a, b) => b.updatedAt - a.updatedAt);
 
-    let html = '';
-
-    // Render folders first
-    urlFolders.forEach(folder => {
-      const folderBookmarks = folderBookmarksMap[folder.id] || [];
-      folderBookmarks.sort((a, b) => b.updatedAt - a.updatedAt);
-      html += renderFolderItem(folder, folderBookmarks);
-    });
-
-    // Render root bookmarks
-    rootBookmarks.forEach(bookmark => {
-      html += renderBookmarkItem(bookmark);
-    });
-
+    const html = urlBookmarks.map(bookmark => renderBookmarkItem(bookmark)).join('');
     elements.bookmarksList.innerHTML = html;
 
     // Add event listeners
     elements.bookmarksList.querySelectorAll('.bookmark-item').forEach(item => {
       item.addEventListener('click', handleBookmarkAction);
-    });
-
-    elements.bookmarksList.querySelectorAll('.folder-header').forEach(header => {
-      header.addEventListener('click', handleFolderAction);
     });
   }
 
@@ -550,37 +410,6 @@
       hour: '2-digit',
       minute: '2-digit'
     });
-  }
-
-  /**
-   * Handle folder action
-   */
-  function handleFolderAction(event) {
-    const button = event.target.closest('button[data-action]');
-    const folderItem = event.currentTarget.closest('.folder-item');
-    const folderId = folderItem.dataset.id;
-
-    if (button && button.dataset.action === 'delete-folder') {
-      event.stopPropagation();
-      openDeleteFolderDialog(folderId);
-      return;
-    }
-
-    // Toggle folder
-    toggleFolder(folderId);
-  }
-
-  /**
-   * Toggle folder collapsed state
-   */
-  function toggleFolder(folderId) {
-    if (collapsedFolders.has(folderId)) {
-      collapsedFolders.delete(folderId);
-    } else {
-      collapsedFolders.add(folderId);
-    }
-    saveData();
-    renderBookmarks();
   }
 
   /**
@@ -641,7 +470,6 @@
    */
   function openSaveDialog() {
     elements.bookmarkName.value = currentTitle;
-    updateFolderSelect();
     elements.saveDialog.classList.remove('hidden');
     elements.bookmarkName.focus();
     elements.bookmarkName.select();
@@ -682,13 +510,10 @@
         return;
       }
 
-      const folderId = elements.folderSelect.value || null;
-
       const newBookmark = {
         id: generateUUID(),
         name,
         urlPattern: normalizeUrl(currentUrl),
-        folderId,
         fields,
         createdAt: Date.now(),
         updatedAt: Date.now()
@@ -719,56 +544,6 @@
       console.error('Save error:', error);
       showToast(i18n.get('errorSave'), 'error');
     }
-  }
-
-  /**
-   * Open folder dialog
-   */
-  function openFolderDialog() {
-    elements.folderName.value = '';
-    elements.folderDialog.classList.remove('hidden');
-    elements.folderName.focus();
-  }
-
-  /**
-   * Close folder dialog
-   */
-  function closeFolderDialog() {
-    elements.folderDialog.classList.add('hidden');
-    elements.folderName.value = '';
-  }
-
-  /**
-   * Create new folder
-   */
-  async function createFolder() {
-    const name = elements.folderName.value.trim();
-    if (!name) {
-      showToast(i18n.get('errorEnterName'), 'error');
-      return;
-    }
-
-    const newFolder = {
-      id: generateUUID(),
-      name,
-      urlPattern: normalizeUrl(currentUrl),
-      createdAt: Date.now()
-    };
-
-    // Check storage capacity
-    const newFolderSize = estimateSize(newFolder);
-    const capacity = await checkStorageCapacity(newFolderSize);
-
-    if (!capacity.canSave) {
-      showToast(i18n.get('errorStorageFull'), 'error');
-      return;
-    }
-
-    folders.push(newFolder);
-    await saveData();
-    renderBookmarks();
-    closeFolderDialog();
-    showToast(i18n.get('toastFolderCreated', name), 'success');
   }
 
   /**
@@ -817,21 +592,7 @@
    */
   function openDeleteDialog(bookmark) {
     deletingBookmarkId = bookmark.id;
-    deletingFolderId = null;
     elements.deleteMessage.textContent = i18n.get('deleteConfirmMessage', bookmark.name);
-    elements.deleteDialog.classList.remove('hidden');
-  }
-
-  /**
-   * Open delete folder dialog
-   */
-  function openDeleteFolderDialog(folderId) {
-    const folder = folders.find(f => f.id === folderId);
-    if (!folder) return;
-
-    deletingFolderId = folderId;
-    deletingBookmarkId = null;
-    elements.deleteMessage.textContent = i18n.get('deleteFolderConfirm', folder.name);
     elements.deleteDialog.classList.remove('hidden');
   }
 
@@ -841,45 +602,24 @@
   function closeDeleteDialog() {
     elements.deleteDialog.classList.add('hidden');
     deletingBookmarkId = null;
-    deletingFolderId = null;
   }
 
   /**
-   * Delete bookmark or folder
+   * Delete bookmark
    */
   async function deleteItem() {
-    if (deletingBookmarkId) {
-      const index = bookmarks.findIndex(b => b.id === deletingBookmarkId);
-      if (index === -1) return;
+    if (!deletingBookmarkId) return;
 
-      const name = bookmarks[index].name;
-      bookmarks.splice(index, 1);
+    const index = bookmarks.findIndex(b => b.id === deletingBookmarkId);
+    if (index === -1) return;
 
-      await saveData();
-      renderBookmarks();
-      closeDeleteDialog();
-      showToast(i18n.get('toastDeleted', name), 'success');
-    } else if (deletingFolderId) {
-      const folderIndex = folders.findIndex(f => f.id === deletingFolderId);
-      if (folderIndex === -1) return;
+    const name = bookmarks[index].name;
+    bookmarks.splice(index, 1);
 
-      const name = folders[folderIndex].name;
-
-      // Move bookmarks in this folder to root
-      bookmarks.forEach(b => {
-        if (b.folderId === deletingFolderId) {
-          b.folderId = null;
-        }
-      });
-
-      folders.splice(folderIndex, 1);
-      collapsedFolders.delete(deletingFolderId);
-
-      await saveData();
-      renderBookmarks();
-      closeDeleteDialog();
-      showToast(i18n.get('toastFolderDeleted', name), 'success');
-    }
+    await saveData();
+    renderBookmarks();
+    closeDeleteDialog();
+    showToast(i18n.get('toastDeleted', name), 'success');
   }
 
   /**
@@ -890,8 +630,7 @@
       const data = {
         version: '1.0',
         exportedAt: new Date().toISOString(),
-        bookmarks,
-        folders
+        bookmarks
       };
 
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -933,15 +672,8 @@
         const existingIds = new Set(bookmarks.map(b => b.id));
         const newBookmarks = data.bookmarks.filter(b => !existingIds.has(b.id));
 
-        // Merge folders if present
-        let newFolders = [];
-        if (data.folders && Array.isArray(data.folders)) {
-          const existingFolderIds = new Set(folders.map(f => f.id));
-          newFolders = data.folders.filter(f => !existingFolderIds.has(f.id));
-        }
-
         // Check storage capacity before import
-        const importSize = estimateSize([...newBookmarks, ...newFolders]);
+        const importSize = estimateSize(newBookmarks);
         const capacity = await checkStorageCapacity(importSize);
 
         if (!capacity.canSave) {
@@ -950,7 +682,6 @@
         }
 
         bookmarks.push(...newBookmarks);
-        folders.push(...newFolders);
 
         await saveData();
         renderBookmarks();
@@ -1227,8 +958,6 @@
     elements.includePasswords.checked = settings.includePasswords;
     elements.autoRestore.checked = settings.autoRestore;
     elements.showAllBookmarks.checked = matchSettings.showAllBookmarks;
-    elements.fuzzySubdomainMatch.checked = matchSettings.fuzzySubdomainMatch;
-    elements.useEnvironmentGroups.checked = matchSettings.useEnvironmentGroups;
 
     // Re-render bookmarks after loading settings
     renderBookmarks();
@@ -1253,28 +982,13 @@
       renderBookmarks();
     });
 
-    elements.fuzzySubdomainMatch.addEventListener('change', async () => {
-      matchSettings.fuzzySubdomainMatch = elements.fuzzySubdomainMatch.checked;
-      await saveSettings({ fuzzySubdomainMatch: matchSettings.fuzzySubdomainMatch });
-      renderBookmarks();
-    });
-
-    elements.useEnvironmentGroups.addEventListener('change', async () => {
-      matchSettings.useEnvironmentGroups = elements.useEnvironmentGroups.checked;
-      await saveSettings({ useEnvironmentGroups: matchSettings.useEnvironmentGroups });
-      renderBookmarks();
-    });
-
     // Event listeners
     elements.saveBtn.addEventListener('click', openSaveDialog);
-    elements.addFolderBtn.addEventListener('click', openFolderDialog);
     elements.exportBtn.addEventListener('click', exportData);
     elements.importBtn.addEventListener('click', () => elements.importFile.click());
     elements.importFile.addEventListener('change', handleImport);
     elements.cancelSave.addEventListener('click', closeSaveDialog);
     elements.confirmSave.addEventListener('click', saveNewBookmark);
-    elements.cancelFolder.addEventListener('click', closeFolderDialog);
-    elements.confirmFolder.addEventListener('click', createFolder);
     elements.cancelEdit.addEventListener('click', closeEditDialog);
     elements.confirmEdit.addEventListener('click', updateBookmark);
     elements.cancelDelete.addEventListener('click', closeDeleteDialog);
@@ -1293,9 +1007,6 @@
     elements.bookmarkName.addEventListener('keypress', e => {
       if (e.key === 'Enter') saveNewBookmark();
     });
-    elements.folderName.addEventListener('keypress', e => {
-      if (e.key === 'Enter') createFolder();
-    });
     elements.editBookmarkName.addEventListener('keypress', e => {
       if (e.key === 'Enter') updateBookmark();
     });
@@ -1307,7 +1018,7 @@
     });
 
     // Close dialogs on overlay click
-    [elements.saveDialog, elements.folderDialog, elements.editDialog, elements.deleteDialog,
+    [elements.saveDialog, elements.editDialog, elements.deleteDialog,
      elements.envGroupsDialog, elements.envGroupEditDialog].forEach(dialog => {
       dialog.addEventListener('click', e => {
         if (e.target === dialog) {
