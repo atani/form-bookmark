@@ -4,6 +4,39 @@ const path = require('path');
 const EXTENSION_PATH = path.resolve(__dirname, '../..');
 const TIMEOUT = 30000;
 
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+/**
+ * Wait for extension to be loaded and get its ID
+ */
+async function getExtensionId(browser, maxAttempts = 10) {
+  for (let i = 0; i < maxAttempts; i++) {
+    const targets = await browser.targets();
+
+    // Try to find service worker
+    const swTarget = targets.find(
+      target => target.type() === 'service_worker' && target.url().includes('chrome-extension://')
+    );
+    if (swTarget) {
+      const match = swTarget.url().match(/chrome-extension:\/\/([^/]+)/);
+      if (match) return match[1];
+    }
+
+    // Try to find any chrome-extension page
+    const extTarget = targets.find(
+      target => target.url().startsWith('chrome-extension://')
+    );
+    if (extTarget) {
+      const match = extTarget.url().match(/chrome-extension:\/\/([^/]+)/);
+      if (match) return match[1];
+    }
+
+    // Wait and retry
+    await sleep(500);
+  }
+  return null;
+}
+
 describe('Form Bookmark Extension E2E', () => {
   let browser;
   let extensionId;
@@ -15,7 +48,9 @@ describe('Form Bookmark Extension E2E', () => {
         `--disable-extensions-except=${EXTENSION_PATH}`,
         `--load-extension=${EXTENSION_PATH}`,
         '--no-sandbox',
-        '--disable-setuid-sandbox'
+        '--disable-setuid-sandbox',
+        '--disable-gpu',
+        '--disable-dev-shm-usage'
       ]
     };
 
@@ -26,23 +61,11 @@ describe('Form Bookmark Extension E2E', () => {
 
     browser = await puppeteer.launch(launchOptions);
 
-    // Get extension ID from service worker
-    const targets = await browser.targets();
-    const extensionTarget = targets.find(
-      target => target.type() === 'service_worker' && target.url().includes('chrome-extension://')
-    );
+    // Wait for extension to load and get ID
+    extensionId = await getExtensionId(browser);
 
-    if (extensionTarget) {
-      const url = extensionTarget.url();
-      extensionId = url.match(/chrome-extension:\/\/([^/]+)/)[1];
-    } else {
-      // Fallback: find extension page
-      const extensionPage = targets.find(
-        target => target.url().includes('chrome-extension://')
-      );
-      if (extensionPage) {
-        extensionId = extensionPage.url().match(/chrome-extension:\/\/([^/]+)/)[1];
-      }
+    if (!extensionId) {
+      throw new Error('Failed to get extension ID. Extension may not have loaded.');
     }
   }, TIMEOUT);
 
@@ -89,7 +112,7 @@ describe('Form Bookmark Extension E2E', () => {
       const initialState = await popupPage.$eval('#showAllBookmarks', el => el.checked);
 
       await checkbox.click();
-      await popupPage.waitForTimeout(100);
+      await sleep(100);
 
       const newState = await popupPage.$eval('#showAllBookmarks', el => el.checked);
       expect(newState).toBe(!initialState);
@@ -100,7 +123,7 @@ describe('Form Bookmark Extension E2E', () => {
       const initialState = await popupPage.$eval('#fuzzySubdomainMatch', el => el.checked);
 
       await checkbox.click();
-      await popupPage.waitForTimeout(100);
+      await sleep(100);
 
       const newState = await popupPage.$eval('#fuzzySubdomainMatch', el => el.checked);
       expect(newState).toBe(!initialState);
@@ -111,7 +134,7 @@ describe('Form Bookmark Extension E2E', () => {
       const initialState = await popupPage.$eval('#useEnvironmentGroups', el => el.checked);
 
       await checkbox.click();
-      await popupPage.waitForTimeout(100);
+      await sleep(100);
 
       const newState = await popupPage.$eval('#useEnvironmentGroups', el => el.checked);
       expect(newState).toBe(!initialState);
@@ -126,15 +149,14 @@ describe('Form Bookmark Extension E2E', () => {
       // Open advanced settings
       const details = await popupPage.$('details.advanced-settings');
       await details.click();
-      await popupPage.waitForTimeout(100);
+      await sleep(100);
 
       // Click manage button
       const manageBtn = await popupPage.$('#manageEnvGroupsBtn');
       await manageBtn.click();
-      await popupPage.waitForTimeout(100);
+      await sleep(100);
 
       // Check dialog is visible
-      const dialog = await popupPage.$('#envGroupsDialog');
       const isHidden = await popupPage.$eval('#envGroupsDialog', el => el.classList.contains('hidden'));
       expect(isHidden).toBe(false);
     }, TIMEOUT);
@@ -142,13 +164,13 @@ describe('Form Bookmark Extension E2E', () => {
     test('add environment group dialog opens', async () => {
       // Open advanced settings and env groups dialog
       await popupPage.click('details.advanced-settings');
-      await popupPage.waitForTimeout(100);
+      await sleep(100);
       await popupPage.click('#manageEnvGroupsBtn');
-      await popupPage.waitForTimeout(100);
+      await sleep(100);
 
       // Click add button
       await popupPage.click('#addEnvGroupBtn');
-      await popupPage.waitForTimeout(100);
+      await sleep(100);
 
       // Check edit dialog is visible
       const isHidden = await popupPage.$eval('#envGroupEditDialog', el => el.classList.contains('hidden'));
@@ -166,7 +188,7 @@ describe('Form Bookmark Extension E2E', () => {
 
       // Enable fuzzy matching
       await popupPage.click('#fuzzySubdomainMatch');
-      await popupPage.waitForTimeout(200);
+      await sleep(200);
       await popupPage.close();
 
       // Second popup session
@@ -174,14 +196,14 @@ describe('Form Bookmark Extension E2E', () => {
       await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`, {
         waitUntil: 'domcontentloaded'
       });
-      await popupPage.waitForTimeout(200);
+      await sleep(200);
 
       const isChecked = await popupPage.$eval('#fuzzySubdomainMatch', el => el.checked);
       expect(isChecked).toBe(true);
 
       // Cleanup: turn it back off
       await popupPage.click('#fuzzySubdomainMatch');
-      await popupPage.waitForTimeout(100);
+      await sleep(100);
       await popupPage.close();
     }, TIMEOUT);
   });
