@@ -42,8 +42,10 @@ describe('Form Bookmark Extension E2E', () => {
   let extensionId;
 
   beforeAll(async () => {
+    // headless: false is required for extension loading
+    // In CI, xvfb provides a virtual display
     const launchOptions = {
-      headless: 'new',
+      headless: false,
       args: [
         `--disable-extensions-except=${EXTENSION_PATH}`,
         `--load-extension=${EXTENSION_PATH}`,
