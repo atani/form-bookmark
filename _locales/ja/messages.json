@@ -342,5 +342,13 @@
   "errorMinPatterns": {
     "message": "2つ以上のパターンが必要です",
     "description": "Error when less than 2 patterns"
+  },
+  "addCurrentUrlTitle": {
+    "message": "現在のURLを追加",
+    "description": "Title for add current URL button"
+  },
+  "toastCurrentUrlAdded": {
+    "message": "現在のURLを追加しました",
+    "description": "Toast message after adding current URL"
   }
 }

@@ -85,6 +85,7 @@
     envPatternsList: document.getElementById('envPatternsList'),
     newEnvPattern: document.getElementById('newEnvPattern'),
     addEnvPatternBtn: document.getElementById('addEnvPatternBtn'),
+    addCurrentUrlBtn: document.getElementById('addCurrentUrlBtn'),
     cancelEnvGroupEdit: document.getElementById('cancelEnvGroupEdit'),
     confirmEnvGroupEdit: document.getElementById('confirmEnvGroupEdit'),
     toast: document.getElementById('toast')
@@ -1123,6 +1124,30 @@
   }
 
   /**
+   * Add current URL origin to editing list
+   */
+  function addCurrentUrlAsEnvPattern() {
+    if (!currentUrl) return;
+
+    try {
+      const url = new URL(currentUrl);
+      const origin = url.origin;
+
+      // Check for duplicates
+      if (editingEnvPatterns.includes(origin)) {
+        showToast(i18n.get('errorDuplicatePattern'), 'warning');
+        return;
+      }
+
+      editingEnvPatterns.push(origin);
+      renderEnvPatternsList();
+      showToast(i18n.get('toastCurrentUrlAdded'), 'success');
+    } catch {
+      showToast(i18n.get('errorInvalidUrl'), 'error');
+    }
+  }
+
+  /**
    * Save environment group
    */
   async function saveEnvGroup() {
@@ -1262,6 +1287,7 @@
     elements.cancelEnvGroupEdit.addEventListener('click', closeEnvGroupEditDialog);
     elements.confirmEnvGroupEdit.addEventListener('click', saveEnvGroup);
     elements.addEnvPatternBtn.addEventListener('click', addEnvPattern);
+    elements.addCurrentUrlBtn.addEventListener('click', addCurrentUrlAsEnvPattern);
 
     // Enter key support for dialogs
     elements.bookmarkName.addEventListener('keypress', e => {

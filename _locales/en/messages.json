@@ -342,5 +342,13 @@
   "errorMinPatterns": {
     "message": "At least 2 patterns are required",
     "description": "Error when less than 2 patterns"
+  },
+  "addCurrentUrlTitle": {
+    "message": "Add current URL",
+    "description": "Title for add current URL button"
+  },
+  "toastCurrentUrlAdded": {
+    "message": "Added current URL",
+    "description": "Toast message after adding current URL"
   }
 }

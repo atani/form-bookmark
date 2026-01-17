@@ -90,6 +90,15 @@ body {
   background: #d0d0d0;
 }
 
+.btn-accent {
+  background: #F39C12;
+  color: white;
+}
+
+.btn-accent:hover {
+  background: #E67E22;
+}
+
 .btn-danger {
   background: #E74C3C;
   color: white;
