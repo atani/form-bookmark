@@ -5,12 +5,27 @@
   'use strict';
 
   // Settings state
-  let settings = { includePasswords: false, autoRestore: false };
+  let settings = {
+    includePasswords: false,
+    autoRestore: false,
+    fuzzySubdomainMatch: false,
+    useEnvironmentGroups: false
+  };
+  let environmentGroups = [];
 
   // Load settings on init
-  chrome.storage.local.get(['includePasswords', 'autoRestore'], result => {
+  chrome.storage.local.get([
+    'includePasswords',
+    'autoRestore',
+    'fuzzySubdomainMatch',
+    'useEnvironmentGroups',
+    'environmentGroups'
+  ], result => {
     settings.includePasswords = result.includePasswords || false;
     settings.autoRestore = result.autoRestore || false;
+    settings.fuzzySubdomainMatch = result.fuzzySubdomainMatch || false;
+    settings.useEnvironmentGroups = result.useEnvironmentGroups || false;
+    environmentGroups = result.environmentGroups || [];
 
     // Auto-restore if enabled
     if (settings.autoRestore) {
@@ -30,14 +45,105 @@
   });
 
   /**
+   * Normalize URL for fuzzy matching (remove numbers from subdomain)
+   */
+  function normalizeUrlFuzzy(url) {
+    try {
+      const urlObj = new URL(url);
+      const fuzzyHost = urlObj.hostname.replace(/\d+/g, '');
+      return `${urlObj.protocol}//${fuzzyHost}${urlObj.pathname}`;
+    } catch {
+      return url;
+    }
+  }
+
+  /**
+   * Get URL origin
+   */
+  function getUrlOrigin(url) {
+    try {
+      const urlObj = new URL(url);
+      return urlObj.origin;
+    } catch {
+      return url;
+    }
+  }
+
+  /**
+   * Get environment group for a URL
+   */
+  function getEnvironmentGroupForUrl(url) {
+    const origin = getUrlOrigin(url);
+    return environmentGroups.find(group =>
+      group.patterns.some(pattern => {
+        try {
+          const patternOrigin = getUrlOrigin(pattern);
+          return patternOrigin === origin;
+        } catch {
+          return false;
+        }
+      })
+    );
+  }
+
+  /**
+   * Get all origins in the same environment group
+   */
+  function getGroupedOrigins(url) {
+    const group = getEnvironmentGroupForUrl(url);
+    if (!group) return [getUrlOrigin(url)];
+    return group.patterns.map(p => getUrlOrigin(p));
+  }
+
+  /**
+   * Check if a bookmark matches the current URL based on settings
+   */
+  function bookmarkMatchesUrl(bookmark, url) {
+    const normalizedUrl = normalizeUrl(url);
+
+    // Exact match
+    if (bookmark.urlPattern === normalizedUrl) {
+      return true;
+    }
+
+    // Fuzzy subdomain match
+    if (settings.fuzzySubdomainMatch) {
+      const fuzzyUrl = normalizeUrlFuzzy(url);
+      const fuzzyBookmark = normalizeUrlFuzzy(bookmark.urlPattern);
+      if (fuzzyBookmark === fuzzyUrl) {
+        return true;
+      }
+    }
+
+    // Environment group match
+    if (settings.useEnvironmentGroups) {
+      const groupedOrigins = getGroupedOrigins(url);
+      try {
+        const bookmarkOrigin = getUrlOrigin(bookmark.urlPattern);
+        if (groupedOrigins.includes(bookmarkOrigin)) {
+          const urlPath = new URL(url).pathname;
+          const bookmarkPath = new URL(bookmark.urlPattern).pathname;
+          if (urlPath === bookmarkPath) {
+            return true;
+          }
+        }
+      } catch {
+        // Invalid URL
+      }
+    }
+
+    return false;
+  }
+
+  /**
    * Auto-restore form from matching bookmark
    */
   function autoRestoreForm(bookmarks) {
-    const currentUrlPattern = normalizeUrl(window.location.href);
+    const currentUrl = window.location.href;
 
     // Find bookmarks matching current URL, sorted by most recent
     const matchingBookmarks = bookmarks
-      .filter(b => b.urlPattern === currentUrlPattern)
+      .filter(b => bookmarkMatchesUrl(b, currentUrl))
       .sort((a, b) => b.updatedAt - a.updatedAt);
 
     if (matchingBookmarks.length > 0) {
