@@ -32,6 +32,16 @@
   let editingBookmarkId = null;
   let deletingBookmarkId = null;
   let deletingFolderId = null;
+  let environmentGroups = [];
+  let editingEnvGroupId = null;
+  let editingEnvPatterns = [];
+
+  // Settings state
+  let matchSettings = {
+    showAllBookmarks: false,
+    fuzzySubdomainMatch: false,
+    useEnvironmentGroups: false
+  };
 
   // DOM Elements
   const elements = {
@@ -40,6 +50,10 @@
     addFolderBtn: document.getElementById('addFolderBtn'),
     includePasswords: document.getElementById('includePasswords'),
     autoRestore: document.getElementById('autoRestore'),
+    showAllBookmarks: document.getElementById('showAllBookmarks'),
+    fuzzySubdomainMatch: document.getElementById('fuzzySubdomainMatch'),
+    useEnvironmentGroups: document.getElementById('useEnvironmentGroups'),
+    manageEnvGroupsBtn: document.getElementById('manageEnvGroupsBtn'),
     exportBtn: document.getElementById('exportBtn'),
     importBtn: document.getElementById('importBtn'),
     importFile: document.getElementById('importFile'),
@@ -61,6 +75,18 @@
     deleteMessage: document.getElementById('deleteMessage'),
     cancelDelete: document.getElementById('cancelDelete'),
     confirmDelete: document.getElementById('confirmDelete'),
+    envGroupsDialog: document.getElementById('envGroupsDialog'),
+    envGroupsList: document.getElementById('envGroupsList'),
+    addEnvGroupBtn: document.getElementById('addEnvGroupBtn'),
+    closeEnvGroups: document.getElementById('closeEnvGroups'),
+    envGroupEditDialog: document.getElementById('envGroupEditDialog'),
+    envGroupEditTitle: document.getElementById('envGroupEditTitle'),
+    envGroupName: document.getElementById('envGroupName'),
+    envPatternsList: document.getElementById('envPatternsList'),
+    newEnvPattern: document.getElementById('newEnvPattern'),
+    addEnvPatternBtn: document.getElementById('addEnvPatternBtn'),
+    cancelEnvGroupEdit: document.getElementById('cancelEnvGroupEdit'),
+    confirmEnvGroupEdit: document.getElementById('confirmEnvGroupEdit'),
     toast: document.getElementById('toast')
   };
 
@@ -85,6 +111,59 @@
     } catch {
       return url;
     }
+  }
+
+  /**
+   * Normalize URL for fuzzy matching (remove numbers from subdomain)
+   * e.g., https://hoge-111.hoge.com -> https://hoge-.hoge.com
+   */
+  function normalizeUrlFuzzy(url) {
+    try {
+      const urlObj = new URL(url);
+      // Remove numbers from hostname
+      const fuzzyHost = urlObj.hostname.replace(/\d+/g, '');
+      return `${urlObj.protocol}//${fuzzyHost}${urlObj.pathname}`;
+    } catch {
+      return url;
+    }
+  }
+
+  /**
+   * Get URL origin for environment group matching
+   */
+  function getUrlOrigin(url) {
+    try {
+      const urlObj = new URL(url);
+      return urlObj.origin;
+    } catch {
+      return url;
+    }
+  }
+
+  /**
+   * Get environment group for a URL
+   */
+  function getEnvironmentGroupForUrl(url) {
+    const origin = getUrlOrigin(url);
+    return environmentGroups.find(group =>
+      group.patterns.some(pattern => {
+        try {
+          const patternOrigin = getUrlOrigin(pattern);
+          return patternOrigin === origin;
+        } catch {
+          return false;
+        }
+      })
+    );
+  }
+
+  /**
+   * Get all origins in the same environment group as the given URL
+   */
+  function getGroupedOrigins(url) {
+    const group = getEnvironmentGroupForUrl(url);
+    if (!group) return [getUrlOrigin(url)];
+    return group.patterns.map(p => getUrlOrigin(p));
   }
 
   /**
@@ -132,7 +211,20 @@
    */
   async function loadSettings() {
     return new Promise(resolve => {
-      chrome.storage.local.get(['includePasswords', 'autoRestore'], result => {
+      chrome.storage.local.get([
+        'includePasswords',
+        'autoRestore',
+        'showAllBookmarks',
+        'fuzzySubdomainMatch',
+        'useEnvironmentGroups',
+        'environmentGroups'
+      ], result => {
+        environmentGroups = result.environmentGroups || [];
+        matchSettings = {
+          showAllBookmarks: result.showAllBookmarks || false,
+          fuzzySubdomainMatch: result.fuzzySubdomainMatch || false,
+          useEnvironmentGroups: result.useEnvironmentGroups || false
+        };
         resolve({
           includePasswords: result.includePasswords || false,
           autoRestore: result.autoRestore || false
@@ -147,6 +239,15 @@
   async function saveSettings(settings) {
     return new Promise(resolve => {
       chrome.storage.local.set(settings, resolve);
+    });
+  }
+
+  /**
+   * Save environment groups to storage
+   */
+  async function saveEnvironmentGroups() {
+    return new Promise(resolve => {
+      chrome.storage.local.set({ environmentGroups }, resolve);
     });
   }
 
@@ -197,19 +298,116 @@
   }
 
   /**
+   * Check if a bookmark matches the current URL based on settings
+   */
+  function bookmarkMatchesUrl(bookmark, url) {
+    const normalizedUrl = normalizeUrl(url);
+
+    // Exact match
+    if (bookmark.urlPattern === normalizedUrl) {
+      return { matches: true, type: 'exact' };
+    }
+
+    // Fuzzy subdomain match
+    if (matchSettings.fuzzySubdomainMatch) {
+      const fuzzyUrl = normalizeUrlFuzzy(url);
+      const fuzzyBookmark = normalizeUrlFuzzy(bookmark.urlPattern);
+      if (fuzzyBookmark === fuzzyUrl) {
+        return { matches: true, type: 'fuzzy' };
+      }
+    }
+
+    // Environment group match
+    if (matchSettings.useEnvironmentGroups) {
+      const groupedOrigins = getGroupedOrigins(url);
+      try {
+        const bookmarkOrigin = getUrlOrigin(bookmark.urlPattern);
+        if (groupedOrigins.includes(bookmarkOrigin)) {
+          // Check if pathname also matches
+          const urlPath = new URL(url).pathname;
+          const bookmarkPath = new URL(bookmark.urlPattern).pathname;
+          if (urlPath === bookmarkPath) {
+            return { matches: true, type: 'envGroup' };
+          }
+        }
+      } catch {
+        // Invalid URL
+      }
+    }
+
+    return { matches: false };
+  }
+
+  /**
    * Get bookmarks for current URL
    */
   function getBookmarksForUrl(url) {
-    const normalizedUrl = normalizeUrl(url);
-    return bookmarks.filter(b => b.urlPattern === normalizedUrl);
+    if (matchSettings.showAllBookmarks) {
+      return bookmarks.map(b => ({
+        ...b,
+        matchType: bookmarkMatchesUrl(b, url).matches ? 'current' : 'other'
+      }));
+    }
+
+    return bookmarks
+      .map(b => {
+        const match = bookmarkMatchesUrl(b, url);
+        return match.matches ? { ...b, matchType: match.type } : null;
+      })
+      .filter(Boolean);
   }
 
   /**
    * Get folders for current URL
    */
   function getFoldersForUrl(url) {
+    if (matchSettings.showAllBookmarks) {
+      const normalizedUrl = normalizeUrl(url);
+      return folders.map(f => ({
+        ...f,
+        matchType: f.urlPattern === normalizedUrl ? 'current' : 'other'
+      }));
+    }
+
     const normalizedUrl = normalizeUrl(url);
-    return folders.filter(f => f.urlPattern === normalizedUrl);
+    const matchedFolders = [];
+
+    for (const folder of folders) {
+      // Exact match
+      if (folder.urlPattern === normalizedUrl) {
+        matchedFolders.push({ ...folder, matchType: 'exact' });
+        continue;
+      }
+
+      // Fuzzy match
+      if (matchSettings.fuzzySubdomainMatch) {
+        const fuzzyUrl = normalizeUrlFuzzy(url);
+        const fuzzyFolder = normalizeUrlFuzzy(folder.urlPattern);
+        if (fuzzyFolder === fuzzyUrl) {
+          matchedFolders.push({ ...folder, matchType: 'fuzzy' });
+          continue;
+        }
+      }
+
+      // Environment group match
+      if (matchSettings.useEnvironmentGroups) {
+        const groupedOrigins = getGroupedOrigins(url);
+        try {
+          const folderOrigin = getUrlOrigin(folder.urlPattern);
+          if (groupedOrigins.includes(folderOrigin)) {
+            const urlPath = new URL(url).pathname;
+            const folderPath = new URL(folder.urlPattern).pathname;
+            if (urlPath === folderPath) {
+              matchedFolders.push({ ...folder, matchType: 'envGroup' });
+            }
+          }
+        } catch {
+          // Invalid URL
+        }
+      }
+    }
+
+    return matchedFolders;
   }
 
   /**
@@ -227,11 +425,17 @@
    * Render bookmark item HTML
    */
   function renderBookmarkItem(bookmark) {
+    const showUrlBadge = matchSettings.showAllBookmarks && bookmark.matchType === 'other';
+    const urlBadge = showUrlBadge
+      ? `<span class="url-badge" title="${escapeHtml(bookmark.urlPattern)}">${escapeHtml(bookmark.urlPattern)}</span>`
+      : '';
+
     return `
       <div class="bookmark-item" data-id="${bookmark.id}" data-type="bookmark">
         <div class="bookmark-info">
           <span class="bookmark-name">${escapeHtml(bookmark.name)}</span>
           <span class="bookmark-date">${formatDate(bookmark.updatedAt)}</span>
+          ${urlBadge}
         </div>
         <div class="bookmark-actions">
           <button class="btn btn-small btn-restore" data-action="restore" title="${i18n.get('restore')}">
@@ -762,6 +966,216 @@
     reader.readAsText(file);
   }
 
+  // ============================================
+  // Environment Groups Management
+  // ============================================
+
+  /**
+   * Open environment groups dialog
+   */
+  function openEnvGroupsDialog() {
+    renderEnvGroupsList();
+    elements.envGroupsDialog.classList.remove('hidden');
+  }
+
+  /**
+   * Close environment groups dialog
+   */
+  function closeEnvGroupsDialog() {
+    elements.envGroupsDialog.classList.add('hidden');
+  }
+
+  /**
+   * Render environment groups list
+   */
+  function renderEnvGroupsList() {
+    if (environmentGroups.length === 0) {
+      elements.envGroupsList.innerHTML = `<p class="env-groups-empty">${i18n.get('noEnvGroups')}</p>`;
+      return;
+    }
+
+    elements.envGroupsList.innerHTML = environmentGroups.map(group => `
+      <div class="env-group-item" data-id="${group.id}">
+        <div class="env-group-info">
+          <span class="env-group-name">${escapeHtml(group.name)}</span>
+          <span class="env-group-patterns-count">${i18n.get('patternsCount', group.patterns.length.toString())}</span>
+        </div>
+        <div class="env-group-actions">
+          <button class="btn btn-small btn-edit" data-action="edit-env-group" title="${i18n.get('edit')}">
+            ✏️
+          </button>
+          <button class="btn btn-small btn-delete" data-action="delete-env-group" title="${i18n.get('delete')}">
+            🗑️
+          </button>
+        </div>
+      </div>
+    `).join('');
+
+    // Add event listeners
+    elements.envGroupsList.querySelectorAll('.env-group-item').forEach(item => {
+      item.addEventListener('click', handleEnvGroupAction);
+    });
+  }
+
+  /**
+   * Handle environment group action
+   */
+  function handleEnvGroupAction(event) {
+    const button = event.target.closest('button[data-action]');
+    if (!button) return;
+
+    event.stopPropagation();
+
+    const action = button.dataset.action;
+    const groupItem = event.currentTarget;
+    const groupId = groupItem.dataset.id;
+    const group = environmentGroups.find(g => g.id === groupId);
+
+    if (!group) return;
+
+    switch (action) {
+      case 'edit-env-group':
+        openEnvGroupEditDialog(group);
+        break;
+      case 'delete-env-group':
+        deleteEnvGroup(group);
+        break;
+    }
+  }
+
+  /**
+   * Open environment group edit dialog
+   */
+  function openEnvGroupEditDialog(group = null) {
+    editingEnvGroupId = group ? group.id : null;
+    editingEnvPatterns = group ? [...group.patterns] : [];
+
+    elements.envGroupEditTitle.textContent = group
+      ? i18n.get('editEnvGroupTitle')
+      : i18n.get('addEnvGroupTitle');
+    elements.envGroupName.value = group ? group.name : '';
+
+    renderEnvPatternsList();
+    elements.envGroupEditDialog.classList.remove('hidden');
+    elements.envGroupName.focus();
+  }
+
+  /**
+   * Close environment group edit dialog
+   */
+  function closeEnvGroupEditDialog() {
+    elements.envGroupEditDialog.classList.add('hidden');
+    editingEnvGroupId = null;
+    editingEnvPatterns = [];
+    elements.envGroupName.value = '';
+    elements.newEnvPattern.value = '';
+  }
+
+  /**
+   * Render environment patterns list
+   */
+  function renderEnvPatternsList() {
+    if (editingEnvPatterns.length === 0) {
+      elements.envPatternsList.innerHTML = '';
+      return;
+    }
+
+    elements.envPatternsList.innerHTML = editingEnvPatterns.map((pattern, index) => `
+      <div class="env-pattern-item" data-index="${index}">
+        <span title="${escapeHtml(pattern)}">${escapeHtml(pattern)}</span>
+        <button class="btn-remove" data-action="remove-pattern">×</button>
+      </div>
+    `).join('');
+
+    elements.envPatternsList.querySelectorAll('.btn-remove').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const index = parseInt(e.target.closest('.env-pattern-item').dataset.index);
+        editingEnvPatterns.splice(index, 1);
+        renderEnvPatternsList();
+      });
+    });
+  }
+
+  /**
+   * Add pattern to editing list
+   */
+  function addEnvPattern() {
+    const pattern = elements.newEnvPattern.value.trim();
+    if (!pattern) return;
+
+    // Validate URL
+    try {
+      new URL(pattern);
+    } catch {
+      showToast(i18n.get('errorInvalidUrl'), 'error');
+      return;
+    }
+
+    // Check for duplicates
+    if (editingEnvPatterns.includes(pattern)) {
+      showToast(i18n.get('errorDuplicatePattern'), 'warning');
+      return;
+    }
+
+    editingEnvPatterns.push(pattern);
+    elements.newEnvPattern.value = '';
+    renderEnvPatternsList();
+  }
+
+  /**
+   * Save environment group
+   */
+  async function saveEnvGroup() {
+    const name = elements.envGroupName.value.trim();
+    if (!name) {
+      showToast(i18n.get('errorEnterName'), 'error');
+      return;
+    }
+
+    if (editingEnvPatterns.length < 2) {
+      showToast(i18n.get('errorMinPatterns'), 'error');
+      return;
+    }
+
+    if (editingEnvGroupId) {
+      // Update existing group
+      const group = environmentGroups.find(g => g.id === editingEnvGroupId);
+      if (group) {
+        group.name = name;
+        group.patterns = [...editingEnvPatterns];
+      }
+    } else {
+      // Create new group
+      const newGroup = {
+        id: generateUUID(),
+        name,
+        patterns: [...editingEnvPatterns],
+        createdAt: Date.now()
+      };
+      environmentGroups.push(newGroup);
+    }
+
+    await saveEnvironmentGroups();
+    closeEnvGroupEditDialog();
+    renderEnvGroupsList();
+    renderBookmarks();
+    showToast(i18n.get('toastEnvGroupSaved'), 'success');
+  }
+
+  /**
+   * Delete environment group
+   */
+  async function deleteEnvGroup(group) {
+    const index = environmentGroups.findIndex(g => g.id === group.id);
+    if (index === -1) return;
+
+    environmentGroups.splice(index, 1);
+    await saveEnvironmentGroups();
+    renderEnvGroupsList();
+    renderBookmarks();
+    showToast(i18n.get('toastEnvGroupDeleted', group.name), 'success');
+  }
+
   /**
    * Initialize popup
    */
@@ -787,6 +1201,12 @@
     const settings = await loadSettings();
     elements.includePasswords.checked = settings.includePasswords;
     elements.autoRestore.checked = settings.autoRestore;
+    elements.showAllBookmarks.checked = matchSettings.showAllBookmarks;
+    elements.fuzzySubdomainMatch.checked = matchSettings.fuzzySubdomainMatch;
+    elements.useEnvironmentGroups.checked = matchSettings.useEnvironmentGroups;
+
+    // Re-render bookmarks after loading settings
+    renderBookmarks();
 
     // Settings change handlers
     elements.includePasswords.addEventListener('change', async () => {
@@ -800,6 +1220,24 @@
 
     elements.autoRestore.addEventListener('change', async () => {
       await saveSettings({ autoRestore: elements.autoRestore.checked });
+    });
+
+    elements.showAllBookmarks.addEventListener('change', async () => {
+      matchSettings.showAllBookmarks = elements.showAllBookmarks.checked;
+      await saveSettings({ showAllBookmarks: matchSettings.showAllBookmarks });
+      renderBookmarks();
+    });
+
+    elements.fuzzySubdomainMatch.addEventListener('change', async () => {
+      matchSettings.fuzzySubdomainMatch = elements.fuzzySubdomainMatch.checked;
+      await saveSettings({ fuzzySubdomainMatch: matchSettings.fuzzySubdomainMatch });
+      renderBookmarks();
+    });
+
+    elements.useEnvironmentGroups.addEventListener('change', async () => {
+      matchSettings.useEnvironmentGroups = elements.useEnvironmentGroups.checked;
+      await saveSettings({ useEnvironmentGroups: matchSettings.useEnvironmentGroups });
+      renderBookmarks();
     });
 
     // Event listeners
@@ -817,6 +1255,14 @@
     elements.cancelDelete.addEventListener('click', closeDeleteDialog);
     elements.confirmDelete.addEventListener('click', deleteItem);
 
+    // Environment groups event listeners
+    elements.manageEnvGroupsBtn.addEventListener('click', openEnvGroupsDialog);
+    elements.closeEnvGroups.addEventListener('click', closeEnvGroupsDialog);
+    elements.addEnvGroupBtn.addEventListener('click', () => openEnvGroupEditDialog(null));
+    elements.cancelEnvGroupEdit.addEventListener('click', closeEnvGroupEditDialog);
+    elements.confirmEnvGroupEdit.addEventListener('click', saveEnvGroup);
+    elements.addEnvPatternBtn.addEventListener('click', addEnvPattern);
+
     // Enter key support for dialogs
     elements.bookmarkName.addEventListener('keypress', e => {
       if (e.key === 'Enter') saveNewBookmark();
@@ -827,9 +1273,16 @@
     elements.editBookmarkName.addEventListener('keypress', e => {
       if (e.key === 'Enter') updateBookmark();
     });
+    elements.envGroupName.addEventListener('keypress', e => {
+      if (e.key === 'Enter') saveEnvGroup();
+    });
+    elements.newEnvPattern.addEventListener('keypress', e => {
+      if (e.key === 'Enter') addEnvPattern();
+    });
 
     // Close dialogs on overlay click
-    [elements.saveDialog, elements.folderDialog, elements.editDialog, elements.deleteDialog].forEach(dialog => {
+    [elements.saveDialog, elements.folderDialog, elements.editDialog, elements.deleteDialog,
+     elements.envGroupsDialog, elements.envGroupEditDialog].forEach(dialog => {
       dialog.addEventListener('click', e => {
         if (e.target === dialog) {
           dialog.classList.add('hidden');

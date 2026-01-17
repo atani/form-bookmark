@@ -254,5 +254,93 @@
         "example": "100KB"
       }
     }
+  },
+  "showAllBookmarks": {
+    "message": "Show all bookmarks",
+    "description": "Setting to show all bookmarks regardless of URL"
+  },
+  "fuzzySubdomainMatch": {
+    "message": "Ignore numbers in subdomain",
+    "description": "Setting for fuzzy subdomain matching"
+  },
+  "useEnvironmentGroups": {
+    "message": "Match by environment groups",
+    "description": "Setting to use environment groups for matching"
+  },
+  "manageEnvGroups": {
+    "message": "Manage Environment Groups",
+    "description": "Button to manage environment groups"
+  },
+  "manageEnvGroupsTitle": {
+    "message": "Environment Groups",
+    "description": "Environment groups dialog title"
+  },
+  "noEnvGroups": {
+    "message": "No environment groups",
+    "description": "Empty state for environment groups"
+  },
+  "addEnvGroup": {
+    "message": "+ Add Environment Group",
+    "description": "Add environment group button"
+  },
+  "addEnvGroupTitle": {
+    "message": "Add Environment Group",
+    "description": "Add environment group dialog title"
+  },
+  "editEnvGroupTitle": {
+    "message": "Edit Environment Group",
+    "description": "Edit environment group dialog title"
+  },
+  "envGroupNamePlaceholder": {
+    "message": "Enter group name",
+    "description": "Placeholder for environment group name"
+  },
+  "envGroupPatterns": {
+    "message": "URL Patterns (2 or more required)",
+    "description": "Label for environment patterns"
+  },
+  "envPatternPlaceholder": {
+    "message": "https://example.com",
+    "description": "Placeholder for environment pattern input"
+  },
+  "patternsCount": {
+    "message": "$COUNT$ patterns",
+    "description": "Pattern count display",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "close": {
+    "message": "Close",
+    "description": "Close button"
+  },
+  "toastEnvGroupSaved": {
+    "message": "Environment group saved",
+    "description": "Toast message after saving environment group"
+  },
+  "toastEnvGroupDeleted": {
+    "message": "Deleted environment group \"$NAME$\"",
+    "description": "Toast message after deleting environment group",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production"
+      }
+    }
+  },
+  "errorInvalidUrl": {
+    "message": "Invalid URL",
+    "description": "Error when URL is invalid"
+  },
+  "errorDuplicatePattern": {
+    "message": "This pattern is already added",
+    "description": "Error when pattern is duplicate"
+  },
+  "errorMinPatterns": {
+    "message": "At least 2 patterns are required",
+    "description": "Error when less than 2 patterns"
   }
 }

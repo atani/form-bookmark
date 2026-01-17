@@ -254,5 +254,93 @@
         "example": "100KB"
       }
     }
+  },
+  "showAllBookmarks": {
+    "message": "全てのブックマークを表示",
+    "description": "Setting to show all bookmarks regardless of URL"
+  },
+  "fuzzySubdomainMatch": {
+    "message": "サブドメインの数字を無視してマッチング",
+    "description": "Setting for fuzzy subdomain matching"
+  },
+  "useEnvironmentGroups": {
+    "message": "環境グループでマッチング",
+    "description": "Setting to use environment groups for matching"
+  },
+  "manageEnvGroups": {
+    "message": "環境グループを管理",
+    "description": "Button to manage environment groups"
+  },
+  "manageEnvGroupsTitle": {
+    "message": "環境グループ管理",
+    "description": "Environment groups dialog title"
+  },
+  "noEnvGroups": {
+    "message": "環境グループがありません",
+    "description": "Empty state for environment groups"
+  },
+  "addEnvGroup": {
+    "message": "+ 環境グループを追加",
+    "description": "Add environment group button"
+  },
+  "addEnvGroupTitle": {
+    "message": "環境グループを追加",
+    "description": "Add environment group dialog title"
+  },
+  "editEnvGroupTitle": {
+    "message": "環境グループを編集",
+    "description": "Edit environment group dialog title"
+  },
+  "envGroupNamePlaceholder": {
+    "message": "グループ名を入力",
+    "description": "Placeholder for environment group name"
+  },
+  "envGroupPatterns": {
+    "message": "URLパターン（2つ以上必要）",
+    "description": "Label for environment patterns"
+  },
+  "envPatternPlaceholder": {
+    "message": "https://example.com",
+    "description": "Placeholder for environment pattern input"
+  },
+  "patternsCount": {
+    "message": "$COUNT$個のパターン",
+    "description": "Pattern count display",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "close": {
+    "message": "閉じる",
+    "description": "Close button"
+  },
+  "toastEnvGroupSaved": {
+    "message": "環境グループを保存しました",
+    "description": "Toast message after saving environment group"
+  },
+  "toastEnvGroupDeleted": {
+    "message": "環境グループ「$NAME$」を削除しました",
+    "description": "Toast message after deleting environment group",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production"
+      }
+    }
+  },
+  "errorInvalidUrl": {
+    "message": "無効なURLです",
+    "description": "Error when URL is invalid"
+  },
+  "errorDuplicatePattern": {
+    "message": "このパターンは既に追加されています",
+    "description": "Error when pattern is duplicate"
+  },
+  "errorMinPatterns": {
+    "message": "2つ以上のパターンが必要です",
+    "description": "Error when less than 2 patterns"
   }
 }

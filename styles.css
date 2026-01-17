@@ -513,3 +513,169 @@ body {
 .bookmarks-list::-webkit-scrollbar-thumb:hover {
   background: #bbb;
 }
+
+/* URL Badge */
+.url-badge {
+  display: inline-block;
+  font-size: 10px;
+  color: #666;
+  background: #e0e0e0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 4px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Full width button */
+.btn-full-width {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+/* Advanced settings content */
+.advanced-settings-content {
+  margin-top: 8px;
+}
+
+/* Environment Groups Dialog */
+.dialog-wide {
+  width: 340px;
+}
+
+.env-groups-list {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+
+.env-group-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: #f5f5f5;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.env-group-item:hover {
+  background: #eeeeee;
+}
+
+.env-group-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.env-group-name {
+  display: block;
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.env-group-patterns-count {
+  display: block;
+  font-size: 11px;
+  color: #888;
+  margin-top: 2px;
+}
+
+.env-group-actions {
+  display: flex;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+/* Environment Patterns Section */
+.env-patterns-section {
+  margin-bottom: 16px;
+}
+
+.env-patterns-section > label {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.env-patterns-list {
+  max-height: 120px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+}
+
+.env-pattern-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.env-pattern-item span {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.env-pattern-item .btn-remove {
+  padding: 2px 6px;
+  font-size: 10px;
+  background: transparent;
+  color: #999;
+  border: none;
+  cursor: pointer;
+}
+
+.env-pattern-item .btn-remove:hover {
+  color: #E74C3C;
+}
+
+.env-pattern-add {
+  display: flex;
+  gap: 8px;
+}
+
+.env-pattern-add input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.env-pattern-add input:focus {
+  outline: none;
+  border-color: #4A90D9;
+}
+
+.env-pattern-add .btn {
+  flex-shrink: 0;
+}
+
+/* Empty state for environment groups */
+.env-groups-empty {
+  text-align: center;
+  color: #999;
+  padding: 16px;
+  font-size: 13px;
+}
+
+/* Toggle setting spacing */
+.toggle-setting {
+  margin-bottom: 8px;
+}
+
+.toggle-setting:last-of-type {
+  margin-bottom: 0;
+}

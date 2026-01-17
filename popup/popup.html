@@ -29,6 +29,21 @@
 
     <section class="settings">
       <label class="toggle-setting">
+        <span class="toggle-label" data-i18n="showAllBookmarks"></span>
+        <input type="checkbox" id="showAllBookmarks" />
+        <span class="toggle-slider"></span>
+      </label>
+      <label class="toggle-setting">
+        <span class="toggle-label" data-i18n="fuzzySubdomainMatch"></span>
+        <input type="checkbox" id="fuzzySubdomainMatch" />
+        <span class="toggle-slider"></span>
+      </label>
+      <label class="toggle-setting">
+        <span class="toggle-label" data-i18n="useEnvironmentGroups"></span>
+        <input type="checkbox" id="useEnvironmentGroups" />
+        <span class="toggle-slider"></span>
+      </label>
+      <label class="toggle-setting">
         <span class="toggle-label" data-i18n="includePasswords"></span>
         <input type="checkbox" id="includePasswords" />
         <span class="toggle-slider"></span>
@@ -40,10 +55,13 @@
       </label>
       <details class="advanced-settings">
         <summary data-i18n="advancedSettings"></summary>
-        <div class="export-import-actions">
-          <button id="exportBtn" class="btn btn-small btn-secondary" data-i18n="export"></button>
-          <button id="importBtn" class="btn btn-small btn-secondary" data-i18n="import"></button>
-          <input type="file" id="importFile" accept=".json" style="display: none;" />
+        <div class="advanced-settings-content">
+          <button id="manageEnvGroupsBtn" class="btn btn-small btn-secondary btn-full-width" data-i18n="manageEnvGroups"></button>
+          <div class="export-import-actions">
+            <button id="exportBtn" class="btn btn-small btn-secondary" data-i18n="export"></button>
+            <button id="importBtn" class="btn btn-small btn-secondary" data-i18n="import"></button>
+            <input type="file" id="importFile" accept=".json" style="display: none;" />
+          </div>
         </div>
       </details>
     </section>
@@ -97,6 +115,38 @@
       <div class="dialog-actions">
         <button id="cancelDelete" class="btn btn-secondary" data-i18n="cancel"></button>
         <button id="confirmDelete" class="btn btn-danger" data-i18n="delete"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Environment Groups Dialog -->
+  <div id="envGroupsDialog" class="dialog-overlay hidden">
+    <div class="dialog dialog-wide">
+      <h3 data-i18n="manageEnvGroupsTitle"></h3>
+      <div id="envGroupsList" class="env-groups-list"></div>
+      <button id="addEnvGroupBtn" class="btn btn-small btn-secondary btn-full-width" data-i18n="addEnvGroup"></button>
+      <div class="dialog-actions">
+        <button id="closeEnvGroups" class="btn btn-secondary" data-i18n="close"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Environment Group Edit Dialog -->
+  <div id="envGroupEditDialog" class="dialog-overlay hidden">
+    <div class="dialog dialog-wide">
+      <h3 id="envGroupEditTitle" data-i18n="addEnvGroupTitle"></h3>
+      <input type="text" id="envGroupName" data-i18n-placeholder="envGroupNamePlaceholder" />
+      <div class="env-patterns-section">
+        <label data-i18n="envGroupPatterns"></label>
+        <div id="envPatternsList" class="env-patterns-list"></div>
+        <div class="env-pattern-add">
+          <input type="text" id="newEnvPattern" data-i18n-placeholder="envPatternPlaceholder" />
+          <button id="addEnvPatternBtn" class="btn btn-small btn-secondary">+</button>
+        </div>
+      </div>
+      <div class="dialog-actions">
+        <button id="cancelEnvGroupEdit" class="btn btn-secondary" data-i18n="cancel"></button>
+        <button id="confirmEnvGroupEdit" class="btn btn-primary" data-i18n="save"></button>
       </div>
     </div>
   </div>
