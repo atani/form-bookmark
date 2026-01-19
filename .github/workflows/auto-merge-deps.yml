@@ -41,7 +41,6 @@ jobs:
               pull_number: prNumber,
             });
             core.setOutput('is_dependabot', pr.user.login === 'dependabot[bot]');
-            core.setOutput('url', pr.html_url);
         env:
           PR_NUMBER: ${{ steps.pr.outputs.number }}
 
@@ -52,4 +51,3 @@ jobs:
           PR_NUMBER: ${{ steps.pr.outputs.number }}
           GH_TOKEN: ${{ secrets.DEPENDABOT_AUTO_MERGE_TOKEN }}
           GH_REPO: ${{ github.repository }}
-
