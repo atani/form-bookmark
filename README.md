@@ -64,6 +64,10 @@
 - 90%以上使用時に警告が表示されます
 - 上限に達した場合は不要なブックマークを削除してください
 
+## サポート
+
+[![GitHub Sponsors](https://img.shields.io/badge/Sponsor-%E2%9D%A4-ea4aaa?logo=github)](https://github.com/sponsors/atani)
+
 ## ライセンス
 
 MIT
