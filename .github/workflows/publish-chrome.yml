@@ -1,28 +1,10 @@
-name: Release Please
+name: Publish to Chrome Web Store
 
 on:
-  push:
-    branches: [main]
-
-permissions:
-  contents: write
-  pull-requests: write
+  workflow_dispatch:
 
 jobs:
-  release-please:
-    runs-on: ubuntu-latest
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
-    steps:
-      - uses: googleapis/release-please-action@v4
-        id: release
-        with:
-          release-type: node
-
-  publish-to-chrome-web-store:
-    needs: release-please
-    if: ${{ needs.release-please.outputs.release_created }}
+  publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
