@@ -31,12 +31,8 @@
 ## インストール
 
 ### Chrome Web Store（推奨）
-Chrome Web Store からインストール
-
-ストアURL:
-```
-https://chromewebstore.google.com/detail/form-bookmark/fealbmcannacbkalmfajebicnajjnlki?authuser=0&hl=ja
-```
+Chrome Web Store からインストール  
+[Form Bookmark - Chrome Web Store](https://chromewebstore.google.com/detail/form-bookmark/fealbmcannacbkalmfajebicnajjnlki?authuser=0&hl=ja)
 
 ### 開発版
 1. このリポジトリをクローン
