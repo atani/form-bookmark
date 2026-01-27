@@ -31,7 +31,12 @@
 ## インストール
 
 ### Chrome Web Store（推奨）
-[Chrome Web Store](#)からインストール（審査中）
+Chrome Web Store からインストール
+
+ストアURL:
+```
+https://chromewebstore.google.com/detail/form-bookmark/fealbmcannacbkalmfajebicnajjnlki?authuser=0&hl=ja
+```
 
 ### 開発版
 1. このリポジトリをクローン
