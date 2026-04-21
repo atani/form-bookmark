@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.2.1](https://github.com/atani/form-bookmark/compare/form-bookmark-v1.2.0...form-bookmark-v1.2.1) (2026-04-20)
+
+
+### Dependencies
+
+* bump basic-ftp from 5.2.0 to 5.2.1 ([#35](https://github.com/atani/form-bookmark/issues/35)) ([2e8226d](https://github.com/atani/form-bookmark/commit/2e8226d8b2fcc1d6912bd00debb4acd4c393e226))
+* bump basic-ftp from 5.2.1 to 5.2.2 ([#38](https://github.com/atani/form-bookmark/issues/38)) ([2ce2e7e](https://github.com/atani/form-bookmark/commit/2ce2e7e50d93d6424e6b88a164f2566d77521df0))
+* bump puppeteer from 24.40.0 to 24.42.0 ([#40](https://github.com/atani/form-bookmark/issues/40)) ([365d28e](https://github.com/atani/form-bookmark/commit/365d28ec2b87f3b7b32542d5c0475e568e9e26c2))
+
 ## [1.2.0](https://github.com/atani/form-bookmark/compare/form-bookmark-v1.1.1...form-bookmark-v1.2.0) (2026-04-08)
 
 
