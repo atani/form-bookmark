@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.2.2](https://github.com/atani/form-bookmark/compare/form-bookmark-v1.2.1...form-bookmark-v1.2.2) (2026-05-12)
+
+
+### Bug Fixes
+
+* **ci:** auto-fix pinact failure ([#44](https://github.com/atani/form-bookmark/issues/44)) ([b73098b](https://github.com/atani/form-bookmark/commit/b73098b1d2bc83bd27d8667872876ecfd632d8d5))
+
+
+### Dependencies
+
+* bump ip-address from 10.1.0 to 10.2.0 ([#42](https://github.com/atani/form-bookmark/issues/42)) ([1710189](https://github.com/atani/form-bookmark/commit/1710189b3c1127e5e94ec3586def0be6f1503d69))
+* bump jest from 30.3.0 to 30.4.2 ([#46](https://github.com/atani/form-bookmark/issues/46)) ([7043dae](https://github.com/atani/form-bookmark/commit/7043dae21ac4807a2185d5707f33674f3019c53e))
+* bump puppeteer from 24.42.0 to 24.43.1 ([#47](https://github.com/atani/form-bookmark/issues/47)) ([6cd94f9](https://github.com/atani/form-bookmark/commit/6cd94f9cad927715f57e492eda43706b549d926a))
+
 ## [1.2.1](https://github.com/atani/form-bookmark/compare/form-bookmark-v1.2.0...form-bookmark-v1.2.1) (2026-04-20)
 
 
