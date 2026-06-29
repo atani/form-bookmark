@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "jest": "^30.4.2",
-    "puppeteer": "^25.1.0"
+    "puppeteer": "^25.2.1"
   },
   "jest": {
     "testEnvironment": "node",
