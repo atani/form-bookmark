@@ -194,8 +194,10 @@
     const elements = document.querySelectorAll(selectors);
 
     elements.forEach(element => {
-      // Skip hidden inputs that are likely CSRF tokens or similar
-      if (element.type === 'hidden' && !element.name) return;
+      // Skip all hidden inputs: they hold server-managed state
+      // (CSRF tokens, plan IDs, session flags) rather than user input.
+      // Saving and replaying them can silently corrupt server-side state.
+      if (element.type === 'hidden') return;
       // Skip submit/button types
       if (['submit', 'button', 'reset', 'image'].includes(element.type)) return;
       // Skip password fields unless explicitly included
@@ -312,6 +314,13 @@
 
       const element = findElementByIdentifier(identifier);
       if (!element) {
+        results.failed++;
+        return;
+      }
+
+      // Never write into hidden inputs, even if an old bookmark
+      // (saved before hidden fields were excluded) still contains them.
+      if (element.type === 'hidden') {
         results.failed++;
         return;
       }
