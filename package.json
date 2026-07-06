@@ -3,9 +3,9 @@
   "version": "1.2.1",
   "description": "Chrome extension to save and restore form inputs for testing",
   "scripts": {
-    "test": "jest",
+    "test": "npm run test:unit && npm run test:e2e",
     "test:unit": "jest tests/unit",
-    "test:e2e": "jest tests/e2e --runInBand",
+    "test:e2e": "NODE_OPTIONS=--experimental-vm-modules jest tests/e2e --runInBand",
     "test:watch": "jest --watch"
   },
   "devDependencies": {
