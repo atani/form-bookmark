@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.2.2](https://github.com/atani/form-bookmark/compare/form-bookmark-v1.2.1...form-bookmark-v1.2.2) (2026-07-07)
+
+
+### Bug Fixes
+
+* **ci:** auto-fix pinact failure ([#44](https://github.com/atani/form-bookmark/issues/44)) ([b73098b](https://github.com/atani/form-bookmark/commit/b73098b1d2bc83bd27d8667872876ecfd632d8d5))
+* exclude hidden inputs from form save and restore ([#55](https://github.com/atani/form-bookmark/issues/55)) ([8249fab](https://github.com/atani/form-bookmark/commit/8249fab6d590889902d3795beecc8c0f9a024be9))
+
+
+### Dependencies
+
+* bump ip-address from 10.1.0 to 10.2.0 ([#42](https://github.com/atani/form-bookmark/issues/42)) ([1710189](https://github.com/atani/form-bookmark/commit/1710189b3c1127e5e94ec3586def0be6f1503d69))
+* bump jest from 30.3.0 to 30.4.2 ([#46](https://github.com/atani/form-bookmark/issues/46)) ([7043dae](https://github.com/atani/form-bookmark/commit/7043dae21ac4807a2185d5707f33674f3019c53e))
+* bump puppeteer from 24.42.0 to 24.43.1 ([#47](https://github.com/atani/form-bookmark/issues/47)) ([6cd94f9](https://github.com/atani/form-bookmark/commit/6cd94f9cad927715f57e492eda43706b549d926a))
+* bump puppeteer from 24.43.1 to 25.0.4 ([#48](https://github.com/atani/form-bookmark/issues/48)) ([3999856](https://github.com/atani/form-bookmark/commit/399985617ce7badfd6525fcc4268be4e3214d2f7))
+* bump puppeteer from 25.0.4 to 25.1.0 ([#50](https://github.com/atani/form-bookmark/issues/50)) ([b14b602](https://github.com/atani/form-bookmark/commit/b14b602945d802375cca7ce876398f87a6c00138))
+* bump puppeteer from 25.1.0 to 25.2.1 ([#53](https://github.com/atani/form-bookmark/issues/53)) ([b964e1a](https://github.com/atani/form-bookmark/commit/b964e1abe853186fc3a71df8e3419cee502c07a5))
+* bump puppeteer from 25.2.1 to 25.3.0 ([#54](https://github.com/atani/form-bookmark/issues/54)) ([6d0309c](https://github.com/atani/form-bookmark/commit/6d0309cb532237099b534be8bc3e90888fe5cab2))
+
 ## [1.2.1](https://github.com/atani/form-bookmark/compare/form-bookmark-v1.2.0...form-bookmark-v1.2.1) (2026-04-20)
 
 
