@@ -300,7 +300,7 @@
    * Restore form fields from saved data
    */
   function restoreFormFields(fields) {
-    const results = { success: 0, failed: 0 };
+    const results = { success: 0, failed: 0, skipped: 0 };
 
     // Handle radio buttons separately - group by name
     const radioGroups = {};
@@ -320,8 +320,10 @@
 
       // Never write into hidden inputs, even if an old bookmark
       // (saved before hidden fields were excluded) still contains them.
+      // Counted as skipped (intentional), not failed, so the popup
+      // does not warn about a partial restore.
       if (element.type === 'hidden') {
-        results.failed++;
+        results.skipped++;
         return;
       }
 
