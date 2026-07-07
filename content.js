@@ -194,8 +194,10 @@
     const elements = document.querySelectorAll(selectors);
 
     elements.forEach(element => {
-      // Skip hidden inputs that are likely CSRF tokens or similar
-      if (element.type === 'hidden' && !element.name) return;
+      // Skip all hidden inputs: they hold server-managed state
+      // (CSRF tokens, plan IDs, session flags) rather than user input.
+      // Saving and replaying them can silently corrupt server-side state.
+      if (element.type === 'hidden') return;
       // Skip submit/button types
       if (['submit', 'button', 'reset', 'image'].includes(element.type)) return;
       // Skip password fields unless explicitly included
@@ -298,7 +300,7 @@
    * Restore form fields from saved data
    */
   function restoreFormFields(fields) {
-    const results = { success: 0, failed: 0 };
+    const results = { success: 0, failed: 0, skipped: 0 };
 
     // Handle radio buttons separately - group by name
     const radioGroups = {};
@@ -313,6 +315,15 @@
       const element = findElementByIdentifier(identifier);
       if (!element) {
         results.failed++;
+        return;
+      }
+
+      // Never write into hidden inputs, even if an old bookmark
+      // (saved before hidden fields were excluded) still contains them.
+      // Counted as skipped (intentional), not failed, so the popup
+      // does not warn about a partial restore.
+      if (element.type === 'hidden') {
+        results.skipped++;
         return;
       }
 
