@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.3](https://github.com/atani/form-bookmark/compare/form-bookmark-v1.2.2...form-bookmark-v1.2.3) (2026-08-04)
+
+
+### Dependencies
+
+* bump brace-expansion ([#61](https://github.com/atani/form-bookmark/issues/61)) ([e6dd50c](https://github.com/atani/form-bookmark/commit/e6dd50ca6009830d811459fdfe73a180b4a8e3e5))
+* bump puppeteer from 25.3.0 to 25.4.0 ([#59](https://github.com/atani/form-bookmark/issues/59)) ([66a117c](https://github.com/atani/form-bookmark/commit/66a117c7c9fa0b18c61970775fc78b2985a5c1c2))
+
 ## [1.2.2](https://github.com/atani/form-bookmark/compare/form-bookmark-v1.2.1...form-bookmark-v1.2.2) (2026-07-07)
 
 
