@@ -9,7 +9,7 @@
     "test:watch": "jest --watch"
   },
   "devDependencies": {
-    "jest": "^30.4.2",
+    "jest": "^30.5.0",
     "puppeteer": "^25.8.0"
   },
   "jest": {
