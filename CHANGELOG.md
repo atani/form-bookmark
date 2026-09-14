@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.3](https://github.com/atani/form-bookmark/compare/form-bookmark-v1.2.2...form-bookmark-v1.2.3) (2026-09-14)
+
+
+### Dependencies
+
+* bump brace-expansion ([#61](https://github.com/atani/form-bookmark/issues/61)) ([e6dd50c](https://github.com/atani/form-bookmark/commit/e6dd50ca6009830d811459fdfe73a180b4a8e3e5))
+* bump jest from 30.4.2 to 30.5.0 ([#66](https://github.com/atani/form-bookmark/issues/66)) ([3f71558](https://github.com/atani/form-bookmark/commit/3f715587b1acdeb392f0e518014b7078e3b77dab))
+* bump jest from 30.5.0 to 30.5.1 ([#68](https://github.com/atani/form-bookmark/issues/68)) ([dc17fd3](https://github.com/atani/form-bookmark/commit/dc17fd39fda6f487eebc1373265c249d95c230b4))
+* bump puppeteer from 25.3.0 to 25.4.0 ([#59](https://github.com/atani/form-bookmark/issues/59)) ([66a117c](https://github.com/atani/form-bookmark/commit/66a117c7c9fa0b18c61970775fc78b2985a5c1c2))
+* bump puppeteer from 25.4.0 to 25.5.0 ([#62](https://github.com/atani/form-bookmark/issues/62)) ([9c2a1b2](https://github.com/atani/form-bookmark/commit/9c2a1b2f98e479d116fc5c410c469a4e4450d1aa))
+* bump puppeteer from 25.5.0 to 25.7.0 ([#63](https://github.com/atani/form-bookmark/issues/63)) ([3baa500](https://github.com/atani/form-bookmark/commit/3baa5006c7687ff1d041f55f8e851e3fa4294e10))
+* bump puppeteer from 25.7.0 to 25.8.0 ([#64](https://github.com/atani/form-bookmark/issues/64)) ([e941460](https://github.com/atani/form-bookmark/commit/e941460fd9321fd8d8db4f0c4a29330592be7c59))
+* bump puppeteer from 25.8.0 to 25.9.0 ([#65](https://github.com/atani/form-bookmark/issues/65)) ([a75a310](https://github.com/atani/form-bookmark/commit/a75a310213f1c1c974839dd3366d27a991492c7c))
+* bump puppeteer from 25.9.0 to 25.10.0 ([#67](https://github.com/atani/form-bookmark/issues/67)) ([b7fe489](https://github.com/atani/form-bookmark/commit/b7fe489c91b6851c6869cf5334b6db93f0263e1e))
+
 ## [1.2.2](https://github.com/atani/form-bookmark/compare/form-bookmark-v1.2.1...form-bookmark-v1.2.2) (2026-07-07)
 
 
